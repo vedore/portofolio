@@ -2,37 +2,54 @@ import sections from '../../data/ScopeViewSections.data.js';
 
 const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
 const smoothstep = (t) => t * t * (3 - 2 * t);
+const SECTION_HOLD_START = 0.38;
+const SECTION_HOLD_END = 0.68;
+const NEXT_FADE_DELAY = 0.35;
 
-function ScopeView({ scopeProgress, isMobile }) {
-  const activation = clamp((scopeProgress - 0.04) / 0.16);
+function ScopeView({ scopeProgress, isMobile, onOpenSection }) {
+  const activation = clamp((scopeProgress - 0.04) / 0.08);
 
-  const contentProgress = smoothstep(clamp((scopeProgress - 0.16) / 0.78));
+  const contentProgress = smoothstep(clamp((scopeProgress - 0.16) / 0.9));
 
   const lensSize = isMobile ? 'min(84vw, 28rem)' : 'min(58vw, 30rem)';
 
   const stepCount = Math.max(sections.length - 1, 1);
 
   const rawPosition = contentProgress * stepCount;
+  const baseIndex = Math.min(Math.floor(rawPosition), sections.length - 1);
+  const baseSectionProgress =
+    baseIndex >= sections.length - 1 ? 0 : rawPosition - baseIndex;
+  const transitionRange = SECTION_HOLD_END - SECTION_HOLD_START;
 
-  const currentIndex = Math.min(Math.floor(rawPosition), sections.length - 1);
+  let currentIndex = baseIndex;
+  let nextIndex = Math.min(baseIndex + 1, sections.length - 1);
+  let revolverProgress = 0;
 
-  const nextIndex = Math.min(currentIndex + 1, sections.length - 1);
+  if (baseSectionProgress <= SECTION_HOLD_START) {
+    revolverProgress = 0;
+  } else if (baseSectionProgress >= SECTION_HOLD_END) {
+    currentIndex = Math.min(baseIndex + 1, sections.length - 1);
+    nextIndex = Math.min(currentIndex + 1, sections.length - 1);
+    revolverProgress = 0;
+  } else {
+    revolverProgress = smoothstep((baseSectionProgress - SECTION_HOLD_START) / transitionRange);
+  }
 
-  const sectionProgress = currentIndex === nextIndex ? 0 : rawPosition - currentIndex;
-
-  const revolverProgress = smoothstep(sectionProgress);
+  const nextOpacityProgress = smoothstep(
+    clamp((revolverProgress - NEXT_FADE_DELAY) / (1 - NEXT_FADE_DELAY)),
+  );
 
   const currentSection = sections[currentIndex];
 
   const nextSection = sections[nextIndex];
 
   const currentStyle = {
-    opacity: 1 - revolverProgress * 3,
-    transform: `translateX(${-revolverProgress * 34}%) rotate(${-revolverProgress * 7}deg) scale(${1 - revolverProgress * 0.08})`,
+    opacity: 1 - nextOpacityProgress * 0.9,
+    transform: `translateX(${-revolverProgress * 52}%) rotate(${-revolverProgress * 9}deg) scale(${1 - revolverProgress * 0.1})`,
   };
   const nextStyle = {
-    opacity: currentIndex === nextIndex ? 0 : revolverProgress,
-    transform: `translateX(${(1 - revolverProgress) * 42}%) rotate(${(1 - revolverProgress) * 9}deg) scale(${0.92 + revolverProgress * 0.08})`,
+    opacity: currentIndex === nextIndex ? 0 : nextOpacityProgress,
+    transform: `translateX(${(1 - revolverProgress) * 62}%) rotate(${(1 - revolverProgress) * 12}deg) scale(${0.9 + revolverProgress * 0.1})`,
   };
 
   return (
@@ -63,8 +80,14 @@ function ScopeView({ scopeProgress, isMobile }) {
             <p className="text-[0.65rem] font-semibold uppercase tracking-[0.34em] text-slate-500">
               {currentSection.label}
             </p>
-            <h2 className="mt-5 text-3xl font-semibold tracking-[0.04em] text-black md:text-5xl">
-              {currentSection.title}
+            <h2 className="mt-5">
+              <button
+                type="button"
+                onClick={() => onOpenSection?.(currentSection)}
+                className="pointer-events-auto text-3xl font-semibold tracking-[0.04em] text-black transition-opacity hover:opacity-65 md:text-5xl"
+              >
+                {currentSection.title}
+              </button>
             </h2>
             <p className="mt-6 max-w-md text-sm leading-7 text-slate-700 md:text-base">
               {currentSection.text}
@@ -80,8 +103,14 @@ function ScopeView({ scopeProgress, isMobile }) {
               <p className="text-[0.65rem] font-semibold uppercase tracking-[0.34em] text-slate-500">
                 {nextSection.label}
               </p>
-              <h2 className="mt-5 text-3xl font-semibold tracking-[0.04em] text-black md:text-5xl">
-                {nextSection.title}
+              <h2 className="mt-5">
+                <button
+                  type="button"
+                  onClick={() => onOpenSection?.(nextSection)}
+                  className="pointer-events-auto text-3xl font-semibold tracking-[0.04em] text-black transition-opacity hover:opacity-65 md:text-5xl"
+                >
+                  {nextSection.title}
+                </button>
               </h2>
               <p className="mt-6 max-w-md text-sm leading-7 text-slate-700 md:text-base">
                 {nextSection.text}

@@ -1,20 +1,26 @@
+import { useEffect, useRef, useState } from 'react';
 import Scene from './components/scene/Scene';
 import LensTransition from './components/ui/LensTransition';
 import ScopeView from './components/ui/ScopeView';
+import SectionPage from './components/ui/SectionPage';
 import LoadingScreen from './components/ui/LoadingScreen';
 import { useScrollProgress } from './hooks/useScrollProgress';
 
-const HERO_SCROLL_HEIGHT = 800;
+const HERO_SCROLL_HEIGHT = 900;
 const HERO_STICKY_START_OFFSET = 50;
 const HERO_ANIMATION_START = 0;
 const HERO_ANIMATION_END = 220;
 const HERO_SCOPE_START = 220;
-const HERO_SCOPE_END = 780;
+const HERO_SCOPE_END = 860;
+const SECTION_PAGE_TRANSITION_MS = 1000; // 520
 
 const ENABLE_DEV_CONTROLS = import.meta.env.VITE_ENABLE_ORBIT === 'true';
 const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
 
 function App() {
+  const [activeSection, setActiveSection] = useState(null);
+  const [isSectionPageOpen, setIsSectionPageOpen] = useState(false);
+  const closeTimerRef = useRef(null);
   const { progress, heroProgress, isMobile } = useScrollProgress({
     heroHeightVh: HERO_SCROLL_HEIGHT,
     animationStartVh: HERO_ANIMATION_START,
@@ -27,11 +33,79 @@ function App() {
   const scopeProgress = clamp((currentHeroVh - scopeStartVh) / Math.max(scopeEndVh - scopeStartVh, 0.001));
   const heroCardOpacity = 1 - clamp((scopeProgress - 0.04) / 0.18);
 
+  useEffect(() => {
+    const previousScrollRestoration = window.history.scrollRestoration;
+
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
+    return () => {
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = previousScrollRestoration;
+      }
+    };
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (!activeSection) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [activeSection]);
+
+  const openSectionPage = (section) => {
+    if (closeTimerRef.current) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+
+    setActiveSection(section);
+    window.requestAnimationFrame(() => {
+      setIsSectionPageOpen(true);
+    });
+  };
+
+  const closeSectionPage = () => {
+    setIsSectionPageOpen(false);
+    closeTimerRef.current = window.setTimeout(() => {
+      setActiveSection(null);
+      closeTimerRef.current = null;
+    }, SECTION_PAGE_TRANSITION_MS);
+  };
+
   return (
     <div className="relative min-h-screen bg-slate-50 text-slate-900">
       <Scene progress={progress} isMobile={isMobile} scopeProgress={scopeProgress} />
       <LensTransition progress={progress} isMobile={isMobile} />
-      <ScopeView scopeProgress={scopeProgress} isMobile={isMobile} />
+      <ScopeView
+        scopeProgress={scopeProgress}
+        isMobile={isMobile}
+        onOpenSection={openSectionPage}
+      />
+      <SectionPage
+        section={activeSection}
+        isOpen={isSectionPageOpen}
+        onClose={closeSectionPage}
+        transitionMs={SECTION_PAGE_TRANSITION_MS}
+      />
       <LoadingScreen />
 
       <main className={`relative z-20 ${ENABLE_DEV_CONTROLS ? 'pointer-events-none' : ''}`}>
