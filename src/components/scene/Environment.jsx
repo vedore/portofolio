@@ -3,12 +3,7 @@ import { ContactShadows, Float } from '@react-three/drei';
 function Environment({ isMobile = false }) {
   return (
     <>
-      <Float speed={1.2} rotationIntensity={isMobile ? 0.02 : 0.04} floatIntensity={0.1}>
-        <mesh position={[-3.8, 3.1, -5]}>
-          <sphereGeometry args={[0.55, 32, 32]} />
-          <meshStandardMaterial color="#d4ecff" transparent opacity={0.26} />
-        </mesh>
-      </Float>
+
 
       {!isMobile ? (
         <ContactShadows

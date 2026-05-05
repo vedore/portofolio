@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 :root {
+  --loader-bg: #f3f9fc;
   color-scheme: light;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -20,10 +21,151 @@ body {
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 10vh;
 }
 
 .lens-vignette {
   background:
     radial-gradient(circle at center, rgba(166, 222, 255, 0.05) 0%, rgba(32, 62, 86, 0.18) 48%, rgba(4, 16, 27, 0.88) 100%);
+}
+
+.loader-fx {
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top, rgba(200, 230, 247, 0.45), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(243, 249, 252, 0.96));
+}
+
+.loader-wave {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  background-image:
+    repeating-linear-gradient(180deg,
+      rgba(0, 0, 0, 0.34) 0px,
+      rgba(0, 0, 0, 0.34) 1px,
+      rgba(255, 255, 255, 0.02) 1px,
+      rgba(255, 255, 255, 0.02) 2px,
+      rgba(0, 0, 0, 0.08) 2px,
+      rgba(0, 0, 0, 0.08) 3px,
+      transparent 3px,
+      transparent 4px),
+    linear-gradient(90deg,
+      rgba(255, 255, 255, 0.02) 0%,
+      rgba(0, 0, 0, 0.12) 22%,
+      rgba(0, 0, 0, 0.22) 50%,
+      rgba(0, 0, 0, 0.12) 78%,
+      rgba(255, 255, 255, 0.02) 100%),
+    radial-gradient(ellipse at center,
+      rgba(0, 0, 0, 0.18) 0%,
+      rgba(0, 0, 0, 0.08) 42%,
+      transparent 72%);
+  animation: loader-wave-drift 100s ease-in-out infinite;
+  mix-blend-mode: normal;
+}
+
+.loader-scan-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0%;
+  height: 300vh;
+  opacity: 1;
+  background:
+    linear-gradient(180deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.05) 10%,
+      rgba(0, 0, 0, 0.14) 28%,
+      rgba(0, 0, 0, 0.28) 50%,
+      rgba(0, 0, 0, 0.14) 72%,
+      rgba(0, 0, 0, 0.05) 90%,
+      transparent 100%);
+  box-shadow:
+    0 0 36px rgba(0, 0, 0, 0.12),
+    0 0 80px rgba(0, 0, 0, 0.08);
+  animation: loader-scan-band-pass 5s linear infinite;
+}
+
+.loader-scan-band--exit {
+  animation: loader-scan-band-exit 950ms ease-in forwards;
+}
+
+.loader-particles {
+  position: absolute;
+  inset: 0;
+}
+
+.loader-particle {
+  position: absolute;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.38);
+  box-shadow:
+    0 0 10px rgba(0, 0, 0, 0.12),
+    0 0 24px rgba(0, 0, 0, 0.08);
+  animation: loader-particle-float 8.8s ease-in-out infinite;
+}
+
+@keyframes loader-wave-drift {
+
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.82;
+  }
+
+  50% {
+    transform: translateX(28px);
+    opacity: 0.96;
+  }
+}
+
+@keyframes loader-scan-band-pass {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+
+  12% {
+    opacity: 0.5;
+  }
+
+  55% {
+    opacity: 0.62;
+  }
+
+  100% {
+    transform: translateY(132vh);
+    opacity: 0;
+  }
+}
+
+@keyframes loader-scan-band-exit {
+  0% {
+    transform: translateY(0);
+    opacity: 0.18;
+  }
+
+  20% {
+    opacity: 0.62;
+  }
+
+  100% {
+    transform: translateY(132vh);
+    opacity: 0;
+  }
+}
+
+@keyframes loader-particle-float {
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.96);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: translate3d(12px, -18px, 0) scale(1.16);
+    opacity: 0.68;
+  }
 }
