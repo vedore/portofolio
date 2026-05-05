@@ -2,7 +2,7 @@ const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
 
 function LensTransition({ progress, isMobile }) {
 
-  const approach = clamp((progress - 0.9) / 0.026);
+  const approach = clamp((progress - 0.8) / 0.026);
 
   const redEntry = clamp((progress - 0.922) / 0.02);
 
@@ -12,9 +12,9 @@ function LensTransition({ progress, isMobile }) {
 
   const blurAmount = approach * (isMobile ? 2 : 4);
 
-  const redGlowOpacity = (0.18 + approach * 0.3) * Math.pow(1 - scopeReveal, 0.35);
+  const redGlowOpacity = (0.18 + approach * 0.3) * Math.pow(1 - scopeReveal, 0);
 
-  const redFillOpacity = redEntry * (1 - scopeReveal);
+  const redFillOpacity = redEntry * (1 - scopeReveal) * Math.pow(1 - scopeReveal, 0.01);
 
   const redCoreScale = 0.7 + approach * 0.4 + redEntry * 1.6;
 

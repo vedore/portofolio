@@ -50,7 +50,7 @@ function Scene({ progress, isMobile, scopeProgress = 0 }) {
           powerPreference: 'high-performance',
         }}
       >
-        <color attach="background" args={['#edf7ff']} />
+        <color attach="background" args={['#101820']} />
         <Suspense fallback={null}>
           <Environment isMobile={isMobile} />
           <Lights enableShadows={ENABLE_SHADOWS} />

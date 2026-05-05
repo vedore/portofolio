@@ -6,26 +6,33 @@ export const MODEL_POSITION = [0, -1.45, 0];
 export const MODEL_ROTATION = [0, 0, 0];
 export const MODEL_SCALE = 1.35;
 
+const COLORS = {
+  background: '#101820', // deep navy
+  floorSpot: '#2DD4BF',  // vivid teal
+  accent: '#FBBF24',     // warm yellow
+  softLight: '#A7F3D0',  // mint fill
+  shadow: '#050A0D',     // almost black
+  emissive: '#0F766E',   // darker teal glow
+};
+
 function MicroscopeModel() {
-  // Change this path if you rename or move the microscope asset in /public/models.
   const { scene } = useGLTF('/models/microscope.glb');
 
   useEffect(() => {
     scene.traverse((child) => {
-      if (!child.isMesh) {
-        return;
-      }
+      if (!child.isMesh) return;
 
-      child.castShadow = false;
-      child.receiveShadow = false;
+      child.castShadow = true;
+      child.receiveShadow = true;
 
       if (child.material && 'envMapIntensity' in child.material) {
-        child.material.envMapIntensity = 1.1;
+        child.material.envMapIntensity = 1.6;
       }
 
       if (child.material && child.material instanceof THREE.MeshStandardMaterial) {
-        child.material.roughness = Math.min(child.material.roughness ?? 0.7, 0.82);
-        child.material.metalness = Math.min(child.material.metalness ?? 0.18, 0.22);
+        child.material.roughness = Math.min(child.material.roughness ?? 0.7, 0.65);
+        child.material.metalness = Math.min(child.material.metalness ?? 0.18, 0.28);
+        child.material.needsUpdate = true;
       }
     });
   }, [scene]);
@@ -38,9 +45,21 @@ function MicroscopeModel() {
         rotation={MODEL_ROTATION}
         scale={MODEL_SCALE}
       />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.52, 0]} receiveShadow>
-        <planeGeometry args={[18, 18]} />
-        <meshStandardMaterial color="#dfeaf3" roughness={0.95} metalness={0.02} />
+
+      {/* Spot/floor under microscope */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, -1.52, 0]}
+        receiveShadow
+      >
+        <circleGeometry args={[3.2, 96]} />
+        <meshStandardMaterial
+          color={COLORS.floorSpot}
+          roughness={0.72}
+          metalness={0.03}
+          emissive={COLORS.emissive}
+          emissiveIntensity={0.14}
+        />
       </mesh>
     </group>
   );

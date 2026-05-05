@@ -3,6 +3,7 @@ export const sections = [
     id: 'about',
     label: 'Specimen 01',
     title: 'About',
+    layout: 'about',
     text: 'Academic background, research curiosity, and the methods that shape how I approach design and technical work.',
     detailIntro:
       'This section opens the wider context behind the work: how I study, what I pay attention to, and the disciplines that shape my decisions.',

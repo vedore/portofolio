@@ -5,6 +5,11 @@ import { CAMERA_PATH } from '../../config/cameraPath';
 
 const smoothstep = (t) => t * t * (3 - 2 * t);
 const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+const START_HOLD_END = 0.14;
+const MID_MOVE_END = 0.42;
+const MID_HOLD_END = 0.58;
+const END_MOVE_END = 0.84;
+const END_HOLD_END = 0.9;
 
 function ScrollCamera({ progress, isMobile }) {
   const { camera } = useThree();
@@ -65,16 +70,25 @@ function ScrollCamera({ progress, isMobile }) {
   }, [camera]);
 
   useFrame((_, delta) => {
-    const firstStage = clamp(progress / 0.62);
-    const secondStage = clamp((progress - 0.62) / 0.28);
-    const thirdStage = clamp((progress - 0.9) / 0.058);
-
-    if (progress < 0.62) {
-      desiredPosition.current.lerpVectors(path.start, path.mid, smoothstep(firstStage));
-    } else if (progress < 0.9) {
-      desiredPosition.current.lerpVectors(path.mid, path.end, smoothstep(secondStage));
+    if (progress <= START_HOLD_END) {
+      desiredPosition.current.copy(path.start);
+    } else if (progress < MID_MOVE_END) {
+      const moveToMid = smoothstep(
+        clamp((progress - START_HOLD_END) / (MID_MOVE_END - START_HOLD_END)),
+      );
+      desiredPosition.current.lerpVectors(path.start, path.mid, moveToMid);
+    } else if (progress <= MID_HOLD_END) {
+      desiredPosition.current.copy(path.mid);
+    } else if (progress < END_MOVE_END) {
+      const moveToEnd = smoothstep(
+        clamp((progress - MID_HOLD_END) / (END_MOVE_END - MID_HOLD_END)),
+      );
+      desiredPosition.current.lerpVectors(path.mid, path.end, moveToEnd);
+    } else if (progress <= END_HOLD_END) {
+      desiredPosition.current.copy(path.end);
     } else {
-      desiredPosition.current.lerpVectors(path.end, path.scopeEntry, smoothstep(thirdStage));
+      const moveToScope = smoothstep(clamp((progress - END_HOLD_END) / (1 - END_HOLD_END)));
+      desiredPosition.current.lerpVectors(path.end, path.scopeEntry, moveToScope);
     }
 
     desiredTarget.current.copy(path.target);

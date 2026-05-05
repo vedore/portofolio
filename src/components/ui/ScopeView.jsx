@@ -53,15 +53,18 @@ function ScopeView({ scopeProgress, isMobile, onOpenSection }) {
   };
 
   return (
-    <div
-      className="pointer-events-none fixed inset-0 z-30 flex items-center justify-center"
-      style={{
-        opacity: activation,
-        transform: `scale(${0.97 + activation * 0.06})`,
-      }}
-    >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(20,20,20,0.04)_0%,_rgba(0,0,0,0.74)_60%,_rgba(0,0,0,0.96)_100%)]" />
-
+    <>
+      <div
+        className="pointer-events-none fixed inset-0 z-30 bg-black"
+        style={{ opacity: activation }}
+      />
+      <div
+        className="pointer-events-none fixed inset-0 z-30 flex items-center justify-center"
+        style={{
+          opacity: activation,
+          transform: `scale(${0.97 + activation * 0.06})`,
+        }}
+      >
       <div
         className="relative overflow-hidden rounded-full border border-white/10 bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_0_80px_rgba(0,0,0,0.55)]"
         style={{
@@ -122,7 +125,8 @@ function ScopeView({ scopeProgress, isMobile, onOpenSection }) {
         <div className="pointer-events-none absolute inset-0 rounded-full border border-black/10" />
         <div className="pointer-events-none absolute inset-0 rounded-full shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),inset_0_0_28px_rgba(0,0,0,0.14),inset_0_0_72px_rgba(0,0,0,0.22)]" />
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
