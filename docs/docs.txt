@@ -1,0 +1,29 @@
+Option 1 — Easier
+React + Tailwind + CSS
+Fake the computer with divs, shadows, borders, gradients.
+
+Option 2 — More advanced
+React + Three.js
+Build/import a real 3D computer and lab.
+
+Option 3 — Best practical result
+Use a 3D-rendered background image of the lab/computer,
+then place real React content over the monitor screen.
+
+Version 1:
+Boxy lab + CRT + portfolio screen
+
+Version 2:
+Better monitor shape, rounded edges, vents, floppy drive, cables
+
+Version 3:
+Mouse parallax camera movement
+
+Version 4:
+Boot animation on the monitor
+
+Version 5:
+Import real models from Blender
+
+Version 6:
+Interactive screen navigation
