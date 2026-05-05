@@ -9,10 +9,13 @@ export function useScrollProgress({
 } = {}) {
   const [state, setState] = useState({
     progress: 0,
+    heroProgress: 0,
     isMobile: false,
   });
 
   useEffect(() => {
+    let frameId = 0;
+
     const update = () => {
       const viewportHeight = window.innerHeight || 1;
       const scrollableHero = Math.max((heroHeightVh / 100) * viewportHeight - viewportHeight, 1);
@@ -23,21 +26,38 @@ export function useScrollProgress({
       const animationStartPx = (animationStart / 100) * viewportHeight;
       const animationEndPx = (animationEnd / 100) * viewportHeight;
       const animationRangePx = Math.max(animationEndPx - animationStartPx, 1);
+      const heroProgress = clamp(window.scrollY / scrollableHero);
       const progress = clamp((window.scrollY - animationStartPx) / animationRangePx);
 
       setState({
         progress,
+        heroProgress,
         isMobile: window.innerWidth < 768,
       });
     };
 
+    const requestUpdate = () => {
+      if (frameId) {
+        return;
+      }
+
+      frameId = window.requestAnimationFrame(() => {
+        frameId = 0;
+        update();
+      });
+    };
+
     update();
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate);
 
     return () => {
-      window.removeEventListener('scroll', update);
-      window.removeEventListener('resize', update);
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+      }
+
+      window.removeEventListener('scroll', requestUpdate);
+      window.removeEventListener('resize', requestUpdate);
     };
   }, [animationEndVh, animationStartVh, heroHeightVh]);
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useProgress } from '@react-three/drei';
 
-const MIN_LOADING_TIME = 2000;
+const MIN_LOADING_TIME = 1500;
 const FADE_DURATION = 950;
 
 function LoadingScreen() {
@@ -62,7 +62,7 @@ function LoadingScreen() {
       }`}
       style={{ transitionDuration: `${FADE_DURATION}ms` }}
     >
-      <div className="loader-fx absolute inset-0">
+      <div className="loader-fx loader-fx--phosphor absolute inset-0">
         <div className="loader-wave" />
         <div className={`loader-scan-band ${isFadingOut ? 'loader-scan-band--exit' : ''}`} />
 
@@ -84,19 +84,20 @@ function LoadingScreen() {
         </div>
       </div>
 
-      <div className="relative z-10 w-full max-w-sm rounded-[2rem] border border-white/80 bg-white/[0.72] px-7 py-8 shadow-[0_20px_70px_rgba(125,170,196,0.16)] backdrop-blur-md">
-        <p className="text-center text-sm font-medium uppercase tracking-[0.24em] text-slate-600">
+      <div className="relative z-10 w-full max-w-sm rounded-[2rem] border border-white/60 bg-white/[0.6] px-7 py-8 shadow-[0_20px_70px_rgba(29,78,52,0.16)] backdrop-blur-md">
+        <div className="absolute inset-0 rounded-[2rem] border border-emerald-200/25" />
+        <p className="text-center text-sm font-medium uppercase tracking-[0.24em] text-slate-700">
           Focusing the lens...
         </p>
 
-        <div className="mt-5 h-2.5 overflow-hidden rounded-full border border-sky-100/80 bg-slate-200/90">
+        <div className="mt-5 h-2.5 overflow-hidden rounded-full border border-emerald-950/20 bg-black/75">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-black via-gray-300 to-black transition-[width] duration-200 ease-out"
+            className="h-full rounded-full bg-gradient-to-r from-black via-emerald-400 to-black transition-[width] duration-200 ease-out"
             style={{ width: `${roundedProgress}%` }}
           />
         </div>
 
-        <p className="mt-3 text-center text-sm font-medium tabular-nums text-slate-500">
+        <p className="mt-3 text-center text-sm font-medium tabular-nums text-slate-600">
           {roundedProgress}%
         </p>
       </div>

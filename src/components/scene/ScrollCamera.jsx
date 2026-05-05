@@ -10,6 +10,9 @@ function ScrollCamera({ progress, isMobile }) {
   const { camera } = useThree();
   const currentPosition = useRef(new THREE.Vector3());
   const currentTarget = useRef(new THREE.Vector3());
+  const desiredPosition = useRef(new THREE.Vector3());
+  const desiredTarget = useRef(new THREE.Vector3());
+  const progressRef = useRef(progress);
 
   const config = isMobile ? CAMERA_PATH.mobile : CAMERA_PATH.desktop;
 
@@ -18,6 +21,7 @@ function ScrollCamera({ progress, isMobile }) {
       start: new THREE.Vector3(...config.start),
       mid: new THREE.Vector3(...config.mid),
       end: new THREE.Vector3(...config.end),
+      scopeEntry: new THREE.Vector3(...config.scopeEntry),
       target: new THREE.Vector3(...config.target),
     }),
     [config],
@@ -30,24 +34,54 @@ function ScrollCamera({ progress, isMobile }) {
     camera.lookAt(path.target);
   }, [camera, path]);
 
-  useFrame((_, delta) => {
-    const firstStage = clamp(progress / 0.85);
-    const secondStage = clamp((progress - 0.15) / 0.3);
+  useEffect(() => {
+    progressRef.current = progress;
+  }, [progress]);
 
-    const desiredPosition = new THREE.Vector3();
+  useEffect(() => {
+    function handleKeyDown(event) {
+      if (event.key.toLowerCase() !== 'c') {
+        return;
+      }
 
-    if (progress < 0.62) {
-      desiredPosition.lerpVectors(path.start, path.mid, smoothstep(firstStage));
-    } else {
-      desiredPosition.lerpVectors(path.mid, path.end, smoothstep(secondStage));
+      const cameraPosition = camera.position
+        .toArray()
+        .map((n) => Number(n.toFixed(3)));
+
+      const targetPosition = currentTarget.current
+        .toArray()
+        .map((n) => Number(n.toFixed(3)));
+
+      console.log('PROGRESS:', Number(progressRef.current.toFixed(3)));
+      console.log('CAMERA POSITION:', cameraPosition);
+      console.log('TARGET POSITION:', targetPosition);
     }
 
-    const desiredTarget = path.target.clone();
-    //desiredTarget.z += progress > 0.8 ? -smoothstep(clamp((progress - 0.8) / 0.2)) * 0.5 : 0;
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [camera]);
+
+  useFrame((_, delta) => {
+    const firstStage = clamp(progress / 0.62);
+    const secondStage = clamp((progress - 0.62) / 0.28);
+    const thirdStage = clamp((progress - 0.9) / 0.058);
+
+    if (progress < 0.62) {
+      desiredPosition.current.lerpVectors(path.start, path.mid, smoothstep(firstStage));
+    } else if (progress < 0.9) {
+      desiredPosition.current.lerpVectors(path.mid, path.end, smoothstep(secondStage));
+    } else {
+      desiredPosition.current.lerpVectors(path.end, path.scopeEntry, smoothstep(thirdStage));
+    }
+
+    desiredTarget.current.copy(path.target);
 
     const damping = 1 - Math.exp(-delta * 5);
-    currentPosition.current.lerp(desiredPosition, damping);
-    currentTarget.current.lerp(desiredTarget, damping);
+    currentPosition.current.lerp(desiredPosition.current, damping);
+    currentTarget.current.lerp(desiredTarget.current, damping);
 
     camera.position.copy(currentPosition.current);
     camera.lookAt(currentTarget.current);
