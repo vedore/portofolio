@@ -36,7 +36,6 @@ function Scene({ progress, isMobile, scopeProgress = 0 }) {
       style={{ opacity: 1 - scopeFade }}
     >
       <Canvas
-        frameloop="demand"
         shadows={ENABLE_SHADOWS}
         dpr={1}
         camera={{ position: [0, 2.4, 7.4], fov: isMobile ? 42 : 35, near: 0.1, far: 100 }}
