@@ -7,6 +7,8 @@ import LoadingScreen from './components/ui/LoadingScreen';
 import sections from './data/ScopeViewSections.data.js';
 import { useScrollProgress } from './hooks/useScrollProgress';
 
+import { Analytics } from "@vercel/analytics/next"
+
 const HERO_SCROLL_HEIGHT = 900;
 const HERO_STICKY_START_OFFSET = 50;
 const HERO_ANIMATION_START = 0;
@@ -177,6 +179,8 @@ function App() {
           </div>
         </section>
       </main>
+
+      <Analytics />
     </div>
   );
 }
