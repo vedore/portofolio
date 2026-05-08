@@ -4,10 +4,9 @@ import LensTransition from './components/ui/LensTransition';
 import ScopeView from './components/ui/ScopeView';
 import SectionPage from './components/ui/SectionPage';
 import LoadingScreen from './components/ui/LoadingScreen';
+import { Analytics } from '@vercel/analytics/react';
 import sections from './data/ScopeViewSections.data.js';
 import { useScrollProgress } from './hooks/useScrollProgress';
-
-import { Analytics } from "@vercel/analytics/next"
 
 const HERO_SCROLL_HEIGHT = 900;
 const HERO_STICKY_START_OFFSET = 50;
