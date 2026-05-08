@@ -1,203 +1,226 @@
 # Microscope Portfolio
 
-## Lens Transition Notes
+Scroll-driven portfolio built with React, Vite, Tailwind CSS, and React Three Fiber. The experience starts in a 3D microscope scene, moves the camera toward the lens as the user scrolls, then transitions into a circular scope-style content view with detail pages for each section.
 
-In `src/components/ui/LensTransition.jsx`, the transition is driven by `progress`, which goes from `0` to `1`.
+## Main Features
 
-The pattern:
+- 3D microscope scene rendered with Three.js through React Three Fiber
+- Scroll-driven camera choreography defined in a dedicated config file
+- Lens-entry overlay transition that blends the scene into the portfolio UI
+- Scope-style section carousel driven by static content data
+- Full-screen loading overlay tied to asset loading progress
+- Development-only orbit/camera tuning mode controlled by an environment variable
+- WebGL fallback background when the browser cannot create a WebGL context
 
-```js
-clamp((progress - start) / duration)
+## Tech Stack
+
+- React 19
+- Vite 7
+- Tailwind CSS 3
+- Three.js
+- `@react-three/fiber`
+- `@react-three/drei`
+
+## Project Structure
+
+```text
+.
+├── public/
+│   ├── images/
+│   └── models/
+│       └── microscope.glb
+├── src/
+│   ├── components/
+│   │   ├── scene/
+│   │   │   ├── CameraTuner.jsx
+│   │   │   ├── Environment.jsx
+│   │   │   ├── Lights.jsx
+│   │   │   ├── MicroscopeModel.jsx
+│   │   │   ├── Scene.jsx
+│   │   │   └── ScrollCamera.jsx
+│   │   └── ui/
+│   │       ├── section-pages/
+│   │       ├── LensTransition.jsx
+│   │       ├── LoadingScreen.jsx
+│   │       ├── ScopeView.jsx
+│   │       └── SectionPage.jsx
+│   ├── config/
+│   │   └── cameraPath.js
+│   ├── data/
+│   │   └── ScopeViewSections.data.js
+│   ├── hooks/
+│   │   └── useScrollProgress.js
+│   ├── App.jsx
+│   ├── index.css
+│   └── main.jsx
+├── docs/
+│   └── docs.txt
+├── AGENT.md
+├── README.md
+└── .env.local
 ```
 
-means:
+## How the App Is Organized
 
-- before `start`: value is `0`
-- over `duration`: value ramps from `0` to `1`
-- after that: value stays at `1`
+### App Shell
 
-### Phase Controls
+- `src/main.jsx` mounts the React app.
+- `src/App.jsx` coordinates the page-level experience:
+  - scroll state from `useScrollProgress`
+  - 3D background scene
+  - lens overlay
+  - scope view
+  - section detail overlay
+  - loading screen
 
-```js
-const approach = clamp((progress - 0.9) / 0.06);
+### 3D Scene
+
+- `src/components/scene/Scene.jsx` owns the fixed full-screen `<Canvas>`, WebGL capability detection, and conditional rendering of the 3D scene.
+- `src/components/scene/MicroscopeModel.jsx` loads `public/models/microscope.glb` via `useGLTF`, tweaks material properties, and renders a circular floor spot under the microscope.
+- `src/components/scene/ScrollCamera.jsx` interpolates camera positions across several progress bands.
+- `src/components/scene/Lights.jsx` defines the scene lighting.
+- `src/components/scene/Environment.jsx` currently provides contact shadows only on non-mobile screens.
+- `src/components/scene/CameraTuner.jsx` is a development helper that enables orbit controls and prints camera/target coordinates to the console.
+
+### UI Layer
+
+- `src/components/ui/LensTransition.jsx` creates the red-to-black lens-entry overlay with blur and radial gradients.
+- `src/components/ui/ScopeView.jsx` renders the circular microscope view and transitions between section cards.
+- `src/components/ui/SectionPage.jsx` opens a full-screen detail page for a selected section.
+- `src/components/ui/LoadingScreen.jsx` displays a themed loading overlay using `useProgress` from Drei.
+- `src/components/ui/section-pages/AboutPage.jsx` is the only custom section-page layout currently wired in.
+- `src/components/ui/section-pages/DefaultSectionPage.jsx` renders generic detail blocks for the remaining sections.
+
+### Data and Config
+
+- `src/data/ScopeViewSections.data.js` is the main content source for scope cards and detail pages.
+- `src/config/cameraPath.js` centralizes desktop/mobile camera coordinates.
+- `src/hooks/useScrollProgress.js` converts window scroll into normalized animation progress and a mobile flag.
+
+## Prerequisites
+
+- Node.js installed locally
+- npm available locally
+
+The repository includes `package-lock.json`, so the documented package manager is npm.
+
+## Installation
+
+```bash
+npm install
 ```
 
-- Starts at `0.90`
-- Ends at `0.96`
-- Drives the early buildup into the lens
+## Environment Setup
 
-Used for:
+The repository currently references one Vite environment variable:
 
-- blur
-- red glow
-- part of the red scale
+- `VITE_ENABLE_ORBIT`
+  - `true`: enables development orbit controls and camera tuning helpers
+  - `false`: uses the scroll-driven production camera path
 
-To change it:
+Example local setup:
 
-- start earlier: lower `0.9`
-- last longer: increase `0.06`
-
-```js
-const redEntry = clamp((progress - 0.94) / 0.04);
+```bash
+cp .env.local .env.local.backup
 ```
 
-- Starts at `0.94`
-- Ends at `0.98`
-- Drives the red ocular-entry phase
+Current `.env.local` value in the repository:
 
-To change it:
-
-- start earlier: lower `0.94`
-- last longer: increase `0.04`
-
-```js
-const scopeReveal = clamp((progress - 0.982) / 0.018);
+```env
+VITE_ENABLE_ORBIT=false
 ```
 
-- Starts at `0.982`
-- Ends at `1.0`
-- Drives the black microscope-scope handoff
+No other environment variables were found in the source tree.
 
-To change it:
+## Local Development Commands
 
-- start earlier: lower `0.982`
-- reveal more slowly: increase `0.018`
-
-```js
-const overlayOpacity = clamp((progress - 0.9) / 0.1);
+```bash
+npm run dev
 ```
 
-- Starts at `0.9`
-- Reaches full opacity at `1.0`
-- Controls the opacity of the whole lens overlay
+Starts the Vite development server.
 
-To change it:
-
-- make the full overlay appear earlier: lower `0.9`
-- make the fade-in longer: increase `0.1`
-
-### Visual Output Controls
-
-```js
-const blurAmount = approach * (isMobile ? 8 : 14);
+```bash
+npm run build
 ```
 
-- Mobile max blur: `8`
-- Desktop max blur: `14`
-- Grows with `approach`
+Creates a production build in `dist/`.
 
-To change it:
-
-- stronger blur: increase values
-- softer blur: decrease values
-
-```js
-const redGlowOpacity = 0.18 + approach * 0.3;
+```bash
+npm run preview
 ```
 
-- Base red glow is already `0.18`
-- At full approach it becomes `0.48`
+Serves the built app locally for verification.
 
-To change it:
+## Important Scripts
 
-- stronger base glow: increase `0.18`
-- stronger ramp-up: increase `0.3`
+The current `package.json` defines only three scripts:
 
-```js
-const redFillOpacity = redEntry * (1 - scopeReveal * 0.55);
-```
+- `npm run dev`: start Vite in development mode
+- `npm run build`: build the production bundle
+- `npm run preview`: preview the production build
 
-- `redEntry` makes the red fill appear
-- `scopeReveal` reduces it as the black scope takes over
+No dedicated `test`, `lint`, `typecheck`, or `format` scripts are present right now.
 
-When `scopeReveal = 1`, the multiplier becomes `0.45`, so the red still remains partially visible.
+## Basic Usage Flow
 
-To change it:
+1. Open the app.
+2. The loading overlay remains visible until 3D assets finish loading and a minimum display time elapses.
+3. The initial hero section appears over the microscope scene.
+4. Scrolling updates normalized progress values.
+5. The scene camera advances toward the microscope lens.
+6. Near the end of the hero scroll, the lens transition overlay takes over.
+7. The scope view appears and cycles through the configured sections.
+8. Clicking a section title opens its full-screen detail page.
 
-- fade red more aggressively during scope reveal: increase `0.55`
-- keep red visible longer: decrease `0.55`
+## Styling Notes
 
-```js
-const redCoreScale = 0.7 + approach * 0.4 + redEntry * 1.6;
-```
+- Tailwind utility classes are the primary styling method.
+- `src/index.css` contains global gradients, loader effects, and animation keyframes that are not practical as inline utility classes alone.
+- The Tailwind theme extends a small `lab` color palette and a custom `lens` box shadow.
+- The design language is currently light, laboratory-themed, and highly gradient-driven.
 
-- Base scale: `0.7`
-- `approach` can add `0.4`
-- `redEntry` can add `1.6`
+## Troubleshooting
 
-At full values, total scale is:
+### WebGL scene does not appear
 
-```js
-0.7 + 0.4 + 1.6 = 2.7
-```
+- `Scene.jsx` falls back to a static gradient background if WebGL context creation fails.
+- Confirm the browser/device supports WebGL and that graphics acceleration is enabled.
 
-To change it:
+### Camera tuning is needed
 
-- larger initial red core: increase `0.7`
-- stronger early swelling: increase `0.4`
-- stronger red-entry swell: increase `1.6`
+- Set `VITE_ENABLE_ORBIT=true`.
+- Run the app and use the helper controls from `CameraTuner.jsx`.
+- The scene also logs camera/target coordinates to the console when the tuner is active.
 
-```js
-const blackIrisScale = 0.45 + scopeReveal * (isMobile ? 4.4 : 6.2);
-```
+### Section content looks incomplete
 
-- Base black iris scale: `0.45`
-- Full reveal scale on mobile: `4.85`
-- Full reveal scale on desktop: `6.65`
+- Most section text is placeholder/demo portfolio copy stored in `src/data/ScopeViewSections.data.js`.
+- `AboutPage.jsx` uses fallback values for name, role, photo, and highlights if they are missing from the section data.
 
-To change it:
+### Anchor link in About page does not jump anywhere
 
-- stronger takeover: increase `4.4` / `6.2`
-- softer takeover: decrease them
+- `AboutPage.jsx` links to `#projects`, but the current app structure does not render a matching DOM anchor target.
+- This likely needs follow-up if in-page navigation is intended.
 
-```js
-const blackIrisOpacity = scopeReveal;
-```
+## Build and Deployment Notes
 
-- Black iris opacity matches the reveal phase directly
+- A production build completed successfully with `npm run build` during repository inspection.
+- `dist/` is present in the repository. Whether built assets should remain committed is a workflow decision and is not documented elsewhere in the repo.
+- No deployment configuration files were found for Vercel, Netlify, Docker, or similar platforms.
 
-To change it:
+## Notes for Contributors
 
-- faster opacity buildup: use something like `clamp(scopeReveal * 1.4)`
-- softer opacity: use something like `scopeReveal * 0.8`
+- Keep documentation aligned with the current implementation, not earlier concept notes.
+- Treat `src/config/cameraPath.js`, `src/components/scene/ScrollCamera.jsx`, and `src/components/ui/LensTransition.jsx` as the core interaction layer.
+- Update `src/data/ScopeViewSections.data.js` before hardcoding content in components.
+- Avoid adding undocumented environment variables or build steps without also documenting them.
 
-### Mental Model
+## Known Gaps and Unclear Areas
 
-- `approach` = getting close to the lens
-- `redEntry` = passing through the red ocular glass
-- `scopeReveal` = arriving in the black microscope scope view
-
-And:
-
-- `blurAmount` = softness behind the lens
-- `redGlowOpacity` = red atmospheric glow
-- `redFillOpacity` = red lens body visibility
-- `redCoreScale` = red lens expansion
-- `blackIrisScale` = black scope takeover size
-- `blackIrisOpacity` = black scope visibility
-
-### Example Tweaks
-
-Red phase earlier and longer:
-
-```js
-const redEntry = clamp((progress - 0.92) / 0.06);
-```
-
-Black scope earlier:
-
-```js
-const scopeReveal = clamp((progress - 0.96) / 0.04);
-```
-
-Stronger red swelling:
-
-```js
-const redCoreScale = 0.7 + approach * 0.5 + redEntry * 2.2;
-```
-
-Less blur:
-
-```js
-const blurAmount = approach * (isMobile ? 5 : 9);
-```
+- `src/components/ui/section-pages/ContactPage.jsx` exists but is empty and unused.
+- `src/components/ui/section-pages/ProjectsPage.tsx` exists but is empty and unused.
+- `src/components/ui/section-pages/SkillsPage.tsx` exists but is empty and unused.
+- `AGENT.md` appears to be an older project brief rather than live documentation.
+- `docs/docs.txt` contains concept notes for a different lab/computer idea and does not describe the current microscope implementation.
+- No backend, worker, authentication, database, API, or routing layer was found in the repository.

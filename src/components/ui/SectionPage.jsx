@@ -1,19 +1,54 @@
 import AboutPage from './section-pages/AboutPage';
+import ProjectsPage from './section-pages/ProjectsPage'
+import SkillsPage from './section-pages/SkillsPage';
+import ContactPage from './section-pages/ContactPage';
 import DefaultSectionPage from './section-pages/DefaultSectionPage';
 
-function renderSectionLayout(section) {
+function renderSectionLayout(section, onNavigateByAction, isNavigating) {
   switch (section.layout) {
     case 'about':
-      return <AboutPage section={section} />;
+      return (
+        <AboutPage
+          section={section}
+        />
+      );
+    case 'projects':
+      return (
+        <ProjectsPage
+          section={section}
+        />
+      );
+    case 'skills':
+      return (
+        <SkillsPage
+          section={section}
+        />
+      );
+    case 'contact':
+      return (
+        <ContactPage
+          section={section}
+        />
+      );
     default:
       return <DefaultSectionPage section={section} />;
   }
 }
 
-function SectionPage({ section, isOpen, onClose, transitionMs = 520 }) {
+function SectionPage({
+  section,
+  isOpen,
+  onClose,
+  onNavigateByAction,
+  isNavigating = false,
+  transitionMs = 520,
+}) {
   if (!section) {
     return null;
   }
+
+  const textHighlight =
+    "box-decoration-clone rounded-xl bg-emerald-100/80 px-2 py-1 text-black shadow-[inset_0_-0.45em_0_rgba(110,231,183,0.45)]";
 
   const whiteWashDuration = Math.round(transitionMs * 1.2);
   const contentDelay = Math.round(transitionMs * 0.4);
@@ -55,13 +90,13 @@ function SectionPage({ section, isOpen, onClose, transitionMs = 520 }) {
           <div className="flex items-start justify-between gap-6 border-b border-slate-200 pb-6">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.34em] text-slate-400">
-                {section.label}
+                <span className={textHighlight}>{section.label}</span>
               </p>
-              <h1 className="mt-4 text-4xl font-semibold tracking-tight text-black md:text-6xl">
+              <h1 className="mt-4 text-4xl font-semibold tracking-tight text-black md:text-6xl ">
                 {section.title}
               </h1>
-              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600 md:text-lg">
-                {section.detailIntro ?? section.text}
+              <p className="mt-5 w-full text-base leading-8 text-slate-600 md:text-lg">
+                {section.detailHeader ?? section.text}
               </p>
             </div>
 
@@ -74,7 +109,7 @@ function SectionPage({ section, isOpen, onClose, transitionMs = 520 }) {
             </button>
           </div>
 
-          {renderSectionLayout(section)}
+          {renderSectionLayout(section, onNavigateByAction, isNavigating)}
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import LensTransition from './components/ui/LensTransition';
 import ScopeView from './components/ui/ScopeView';
 import SectionPage from './components/ui/SectionPage';
 import LoadingScreen from './components/ui/LoadingScreen';
+import sections from './data/ScopeViewSections.data.js';
 import { useScrollProgress } from './hooks/useScrollProgress';
 
 const HERO_SCROLL_HEIGHT = 900;
@@ -13,9 +14,27 @@ const HERO_ANIMATION_END = 220;
 const HERO_SCOPE_START = 220;
 const HERO_SCOPE_END = 860;
 const SECTION_PAGE_TRANSITION_MS = 1000; // 520
+const SECTION_HOLD_START = 0.38;
 
 const ENABLE_DEV_CONTROLS = import.meta.env.VITE_ENABLE_ORBIT === 'true';
 const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+const inverseSmoothstep = (value) => {
+  let low = 0;
+  let high = 1;
+
+  for (let index = 0; index < 18; index += 1) {
+    const mid = (low + high) / 2;
+    const estimate = mid * mid * (3 - 2 * mid);
+
+    if (estimate < value) {
+      low = mid;
+    } else {
+      high = mid;
+    }
+  }
+
+  return (low + high) / 2;
+};
 
 function App() {
   const [activeSection, setActiveSection] = useState(null);
@@ -32,22 +51,6 @@ function App() {
   const currentHeroVh = heroProgress * heroScrollRangeVh;
   const scopeProgress = clamp((currentHeroVh - scopeStartVh) / Math.max(scopeEndVh - scopeStartVh, 0.001));
   const heroCardOpacity = 1 - clamp((scopeProgress - 0.04) / 0.18);
-
-  useEffect(() => {
-    const previousScrollRestoration = window.history.scrollRestoration;
-
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
-    }
-
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-
-    return () => {
-      if ('scrollRestoration' in window.history) {
-        window.history.scrollRestoration = previousScrollRestoration;
-      }
-    };
-  }, []);
 
   useEffect(
     () => () => {
@@ -91,6 +94,36 @@ function App() {
     }, SECTION_PAGE_TRANSITION_MS);
   };
 
+  const navigateToSpecimen = (targetIndex) => {
+    if (targetIndex < 0 || targetIndex >= sections.length) {
+      return;
+    }
+
+    const stepCount = Math.max(sections.length - 1, 1);
+    const rawPosition =
+      targetIndex >= sections.length - 1
+        ? stepCount
+        : targetIndex + SECTION_HOLD_START * 0.5;
+    const contentProgress = clamp(rawPosition / stepCount);
+    const scopeContentInput = inverseSmoothstep(contentProgress);
+    const targetScopeProgress = 0.16 + scopeContentInput * 0.9;
+    const targetHeroVh = scopeStartVh + targetScopeProgress * (scopeEndVh - scopeStartVh);
+    const viewportHeight = window.innerHeight || 1;
+    const targetScrollY = (targetHeroVh / 100) * viewportHeight;
+
+    window.scrollTo({
+      top: targetScrollY,
+      behavior: 'smooth',
+    });
+  };
+
+  const scrollToStart = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
   return (
     <div className="relative min-h-screen bg-slate-50 text-slate-900">
       <Scene progress={progress} isMobile={isMobile} scopeProgress={scopeProgress} />
@@ -99,6 +132,7 @@ function App() {
         scopeProgress={scopeProgress}
         isMobile={isMobile}
         onOpenSection={openSectionPage}
+        onNavigateSpecimen={navigateToSpecimen}
       />
       <SectionPage
         section={activeSection}
@@ -107,6 +141,13 @@ function App() {
         transitionMs={SECTION_PAGE_TRANSITION_MS}
       />
       <LoadingScreen />
+      <button
+        type="button"
+        onClick={scrollToStart}
+        className="fixed right-5 top-5 z-40 rounded-full border border-white/60 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-800 shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:text-black md:right-8 md:top-8"
+      >
+        Return to Start
+      </button>
 
       <main className={`relative z-20 ${ENABLE_DEV_CONTROLS ? 'pointer-events-none' : ''}`}>
         <section
