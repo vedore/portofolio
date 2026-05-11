@@ -6,6 +6,7 @@ export function useScrollProgress({
   heroHeightVh = 320,
   animationStartVh = 0,
   animationEndVh,
+  scrollContainerRef,
 } = {}) {
   const [state, setState] = useState({
     progress: 0,
@@ -15,9 +16,11 @@ export function useScrollProgress({
 
   useEffect(() => {
     let frameId = 0;
+    const container = scrollContainerRef?.current;
 
     const update = () => {
-      const viewportHeight = window.innerHeight || 1;
+      const viewportHeight = container?.clientHeight || window.innerHeight || 1;
+      const scrollTop = container?.scrollTop ?? window.scrollY;
       const scrollableHero = Math.max((heroHeightVh / 100) * viewportHeight - viewportHeight, 1);
       const maxAnimationRangeVh = Math.max(heroHeightVh - 100, 0);
       const resolvedAnimationEndVh = animationEndVh ?? maxAnimationRangeVh;
@@ -26,8 +29,8 @@ export function useScrollProgress({
       const animationStartPx = (animationStart / 100) * viewportHeight;
       const animationEndPx = (animationEnd / 100) * viewportHeight;
       const animationRangePx = Math.max(animationEndPx - animationStartPx, 1);
-      const heroProgress = clamp(window.scrollY / scrollableHero);
-      const progress = clamp((window.scrollY - animationStartPx) / animationRangePx);
+      const heroProgress = clamp(scrollTop / scrollableHero);
+      const progress = clamp((scrollTop - animationStartPx) / animationRangePx);
 
       setState({
         progress,
@@ -48,7 +51,8 @@ export function useScrollProgress({
     };
 
     update();
-    window.addEventListener('scroll', requestUpdate, { passive: true });
+    const scrollTarget = container ?? window;
+    scrollTarget.addEventListener('scroll', requestUpdate, { passive: true });
     window.addEventListener('resize', requestUpdate);
 
     return () => {
@@ -56,10 +60,10 @@ export function useScrollProgress({
         window.cancelAnimationFrame(frameId);
       }
 
-      window.removeEventListener('scroll', requestUpdate);
+      scrollTarget.removeEventListener('scroll', requestUpdate);
       window.removeEventListener('resize', requestUpdate);
     };
-  }, [animationEndVh, animationStartVh, heroHeightVh]);
+  }, [animationEndVh, animationStartVh, heroHeightVh, scrollContainerRef]);
 
   return state;
 }

@@ -18,6 +18,7 @@ function ScopeView({
   const contentProgress = smoothstep(clamp((scopeProgress - 0.16) / 0.9));
 
   const lensSize = isMobile ? 'min(84vw, 28rem)' : 'min(58vw, 30rem)';
+  const arrowInset = isMobile ? 'clamp(0.5rem, 2vw, 0.9rem)' : 'clamp(0.75rem, 1.8vw, 1.25rem)';
 
   const stepCount = Math.max(sections.length - 1, 1);
 
@@ -73,37 +74,34 @@ function ScopeView({
           transform: `scale(${0.97 + activation * 0.06})`,
         }}
       >
-        <button
-          type="button"
-          onClick={() => onNavigateSpecimen?.(currentIndex - 1)}
-          disabled={!isLensInteractive || !canGoPrevious}
-          className="pointer-events-auto absolute left-[calc(50%-min(29vw,15rem)-6.4rem)] top-1/2 z-10 flex h-10 w-10 
-          -translate-y-1/2 items-center justify-center text-2xl font-light text-white 
-          transition disabled:cursor-not-allowed disabled:opacity-20 hover:-translate-y-1/2 
-          hover:scale-110 hover:text-white/70 md:left-[calc(50%-min(30vw,15rem)-5rem)] md:h-12 md:w-12 md:text-4xl"
-          aria-label="Previous specimen"
-        >
-          ←
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigateSpecimen?.(currentIndex + 1)}
-          disabled={!isLensInteractive || !canGoNext}
-          className="pointer-events-auto absolute right-[calc(50%-min(29vw,15rem)-6.4rem)] top-1/2 z-10 flex h-10 w-10 
-          -translate-y-1/2 items-center justify-center text-2xl font-light text-white 
-          transition disabled:cursor-not-allowed disabled:opacity-20 hover:-translate-y-1/2 
-          hover:scale-110 hover:text-white/70 md:right-[calc(50%-min(30vw,15rem)-5rem)] md:h-12 md:w-12 md:text-4xl"
-          aria-label="Next specimen"
-        >
-          →
-        </button>
         <div
-          className="relative overflow-hidden rounded-full border border-white/10 bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_0_80px_rgba(0,0,0,0.55)]"
+          className="relative"
           style={{
             width: lensSize,
             height: lensSize,
           }}
         >
+          <button
+            type="button"
+            onClick={() => onNavigateSpecimen?.(currentIndex - 1)}
+            disabled={!isLensInteractive || !canGoPrevious}
+            className="pointer-events-auto absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/18 text-2xl font-light text-emerald-400 shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-sm transition disabled:cursor-not-allowed disabled:opacity-20 hover:scale-110 hover:text-emerald-500 md:h-12 md:w-12 md:text-4xl"
+            style={{ left: arrowInset }}
+            aria-label="Previous specimen"
+          >
+            ←
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigateSpecimen?.(currentIndex + 1)}
+            disabled={!isLensInteractive || !canGoNext}
+            className="pointer-events-auto absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/18 text-2xl font-light text-emerald-400 shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-sm transition disabled:cursor-not-allowed disabled:opacity-20 hover:scale-110 hover:text-emerald-500 md:h-12 md:w-12 md:text-4xl"
+            style={{ right: arrowInset }}
+            aria-label="Next specimen"
+          >
+            →
+          </button>
+          <div className="relative h-full w-full overflow-hidden rounded-full border border-white/10 bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_0_80px_rgba(0,0,0,0.55)]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.95)_0%,_rgba(240,240,240,0.96)_56%,_rgba(210,210,210,0.92)_100%)]" />
           <div className="absolute inset-0 opacity-20 [background-image:repeating-linear-gradient(180deg,rgba(0,0,0,0.12)_0px,rgba(0,0,0,0.12)_1px,transparent_1px,transparent_4px)]" />
           <div className="absolute inset-0 overflow-hidden">
@@ -182,6 +180,7 @@ function ScopeView({
 
           <div className="pointer-events-none absolute inset-0 rounded-full border border-black/10" />
           <div className="pointer-events-none absolute inset-0 rounded-full shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),inset_0_0_28px_rgba(0,0,0,0.14),inset_0_0_72px_rgba(0,0,0,0.22)]" />
+          </div>
         </div>
       </div>
     </>

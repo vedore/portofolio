@@ -41,10 +41,12 @@ function App() {
   const [activeSection, setActiveSection] = useState(null);
   const [isSectionPageOpen, setIsSectionPageOpen] = useState(false);
   const closeTimerRef = useRef(null);
+  const scrollContainerRef = useRef(null);
   const { progress, heroProgress, isMobile } = useScrollProgress({
     heroHeightVh: HERO_SCROLL_HEIGHT,
     animationStartVh: HERO_ANIMATION_START,
     animationEndVh: HERO_ANIMATION_END,
+    scrollContainerRef,
   });
   const heroScrollRangeVh = HERO_SCROLL_HEIGHT - 100;
   const scopeStartVh = clamp(HERO_SCOPE_START, 0, heroScrollRangeVh);
@@ -63,17 +65,16 @@ function App() {
   );
 
   useEffect(() => {
-    if (!activeSection) {
-      return undefined;
-    }
-
-    const previousOverflow = document.body.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
     };
-  }, [activeSection]);
+  }, []);
 
   const openSectionPage = (section) => {
     if (closeTimerRef.current) {
@@ -109,24 +110,27 @@ function App() {
     const scopeContentInput = inverseSmoothstep(contentProgress);
     const targetScopeProgress = 0.16 + scopeContentInput * 0.9;
     const targetHeroVh = scopeStartVh + targetScopeProgress * (scopeEndVh - scopeStartVh);
-    const viewportHeight = window.innerHeight || 1;
+    const viewportHeight = scrollContainerRef.current?.clientHeight || window.innerHeight || 1;
     const targetScrollY = (targetHeroVh / 100) * viewportHeight;
 
-    window.scrollTo({
+    scrollContainerRef.current?.scrollTo({
       top: targetScrollY,
       behavior: 'smooth',
     });
   };
 
   const scrollToStart = () => {
-    window.scrollTo({
+    scrollContainerRef.current?.scrollTo({
       top: 0,
       behavior: 'smooth',
     });
   };
 
   return (
-    <div className="relative min-h-screen bg-slate-50 text-slate-900">
+    <div
+      ref={scrollContainerRef}
+      className="relative h-screen overflow-x-hidden overflow-y-auto bg-slate-50 text-slate-900 overscroll-y-contain"
+    >
       <Scene progress={progress} isMobile={isMobile} scopeProgress={scopeProgress} />
       <LensTransition progress={progress} isMobile={isMobile} />
       <ScopeView
