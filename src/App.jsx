@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Scene from './components/scene/Scene';
 import LensTransition from './components/ui/LensTransition';
 import ScopeView from './components/ui/ScopeView';
 import SectionPage from './components/ui/SectionPage';
 import LoadingScreen from './components/ui/LoadingScreen';
+import ScrollMeter from './components/ui/ScrollMeter';
 import { Analytics } from '@vercel/analytics/react';
 import sections from './data/ScopeViewSections.data.js';
 import { useScrollProgress } from './hooks/useScrollProgress';
@@ -16,9 +17,15 @@ const HERO_SCOPE_START = 220;
 const HERO_SCOPE_END = 860;
 const SECTION_PAGE_TRANSITION_MS = 1000; // 520
 const SECTION_HOLD_START = 0.38;
+const CAMERA_MID_PROGRESS = 0.5;
+const CAMERA_END_PROGRESS = 0.87;
+const CAMERA_SCOPE_ENTRY_PROGRESS = 1;
 
 const ENABLE_DEV_CONTROLS = import.meta.env.VITE_ENABLE_ORBIT === 'true';
 const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+const getInteractiveElement = (element) => element?.closest?.('input, textarea, select, button, a');
+const easeInOutCubic = (value) =>
+  value < 0.5 ? 4 * value * value * value : 1 - ((-2 * value + 2) ** 3) / 2;
 const inverseSmoothstep = (value) => {
   let low = 0;
   let high = 1;
@@ -41,13 +48,16 @@ function App() {
   const [activeSection, setActiveSection] = useState(null);
   const [isSectionPageOpen, setIsSectionPageOpen] = useState(false);
   const closeTimerRef = useRef(null);
+  const scrollAnimationRef = useRef(0);
   const scrollContainerRef = useRef(null);
+
   const { progress, heroProgress, isMobile } = useScrollProgress({
     heroHeightVh: HERO_SCROLL_HEIGHT,
     animationStartVh: HERO_ANIMATION_START,
     animationEndVh: HERO_ANIMATION_END,
     scrollContainerRef,
   });
+
   const heroScrollRangeVh = HERO_SCROLL_HEIGHT - 100;
   const scopeStartVh = clamp(HERO_SCOPE_START, 0, heroScrollRangeVh);
   const scopeEndVh = clamp(HERO_SCOPE_END, scopeStartVh, heroScrollRangeVh);
@@ -55,10 +65,67 @@ function App() {
   const scopeProgress = clamp((currentHeroVh - scopeStartVh) / Math.max(scopeEndVh - scopeStartVh, 0.001));
   const heroCardOpacity = 1 - clamp((scopeProgress - 0.04) / 0.18);
 
+  const getSpecimenHeroProgress = useCallback((targetIndex) => {
+    const stepCount = Math.max(sections.length - 1, 1);
+    const rawPosition =
+      targetIndex >= sections.length - 1
+        ? stepCount
+        : targetIndex + SECTION_HOLD_START * 0.5;
+    const contentProgress = clamp(rawPosition / stepCount);
+    const scopeContentInput = inverseSmoothstep(contentProgress);
+    const targetScopeProgress = 0.16 + scopeContentInput * 0.9;
+    const targetHeroVh = scopeStartVh + targetScopeProgress * (scopeEndVh - scopeStartVh);
+
+    return clamp(targetHeroVh / heroScrollRangeVh);
+  }, [heroScrollRangeVh, scopeEndVh, scopeStartVh]);
+
+  const getCameraHeroProgress = useCallback((cameraProgress) => {
+    const animationVh =
+      HERO_ANIMATION_START + cameraProgress * (HERO_ANIMATION_END - HERO_ANIMATION_START);
+
+    return clamp(animationVh / heroScrollRangeVh);
+  }, [heroScrollRangeVh]);
+
+  const phaseTargets = useMemo(() => [
+    { id: 'start', label: 'Welcome!', progress: 0 },
+    { id: 'middle', label: 'View', progress: getCameraHeroProgress(CAMERA_MID_PROGRESS) },
+    { id: 'end', label: 'Scope', progress: getCameraHeroProgress(CAMERA_END_PROGRESS) },
+    ...sections.map((section, index) => ({
+      id: section.id,
+      label: section.title,
+      progress: getSpecimenHeroProgress(index),
+    })),
+  ], [getCameraHeroProgress, getSpecimenHeroProgress]);
+
+  const currentPhaseIndex = phaseTargets.reduce((closestIndex, phase, index) => {
+    const closestDistance = Math.abs(heroProgress - phaseTargets[closestIndex].progress);
+    const distance = Math.abs(heroProgress - phase.progress);
+
+    return distance < closestDistance ? index : closestIndex;
+  }, 0);
+
+  const meterPosition = phaseTargets.reduce((position, phase, index) => {
+    const nextPhase = phaseTargets[index + 1];
+
+    if (!nextPhase || heroProgress < phase.progress || heroProgress > nextPhase.progress) {
+      return position;
+    }
+
+    const phaseProgress = clamp(
+      (heroProgress - phase.progress) / Math.max(nextPhase.progress - phase.progress, 0.001),
+    );
+
+    return index + phaseProgress;
+  }, heroProgress >= phaseTargets.at(-1).progress ? phaseTargets.length - 1 : 0);
+
   useEffect(
     () => () => {
       if (closeTimerRef.current) {
         window.clearTimeout(closeTimerRef.current);
+      }
+
+      if (scrollAnimationRef.current) {
+        window.cancelAnimationFrame(scrollAnimationRef.current);
       }
     },
     [],
@@ -76,7 +143,7 @@ function App() {
     };
   }, []);
 
-  const openSectionPage = (section) => {
+  const openSectionPage = useCallback((section) => {
     if (closeTimerRef.current) {
       window.clearTimeout(closeTimerRef.current);
       closeTimerRef.current = null;
@@ -86,17 +153,49 @@ function App() {
     window.requestAnimationFrame(() => {
       setIsSectionPageOpen(true);
     });
-  };
+  }, []);
 
-  const closeSectionPage = () => {
+  const closeSectionPage = useCallback(() => {
     setIsSectionPageOpen(false);
     closeTimerRef.current = window.setTimeout(() => {
       setActiveSection(null);
       closeTimerRef.current = null;
     }, SECTION_PAGE_TRANSITION_MS);
-  };
+  }, []);
 
-  const navigateToSpecimen = (targetIndex) => {
+  const animateScrollTo = useCallback((targetScrollY) => {
+    const container = scrollContainerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    if (scrollAnimationRef.current) {
+      window.cancelAnimationFrame(scrollAnimationRef.current);
+    }
+
+    const startScrollY = container.scrollTop;
+    const distance = targetScrollY - startScrollY;
+    const duration = clamp(Math.abs(distance) * 0.75, 900, 2200);
+    const startTime = performance.now();
+
+    const tick = (time) => {
+      const elapsed = time - startTime;
+      const progress = clamp(elapsed / duration);
+
+      container.scrollTop = startScrollY + distance * easeInOutCubic(progress);
+
+      if (progress < 1) {
+        scrollAnimationRef.current = window.requestAnimationFrame(tick);
+      } else {
+        scrollAnimationRef.current = 0;
+      }
+    };
+
+    scrollAnimationRef.current = window.requestAnimationFrame(tick);
+  }, []);
+
+  const navigateToSpecimen = useCallback((targetIndex) => {
     if (targetIndex < 0 || targetIndex >= sections.length) {
       return;
     }
@@ -113,18 +212,60 @@ function App() {
     const viewportHeight = scrollContainerRef.current?.clientHeight || window.innerHeight || 1;
     const targetScrollY = (targetHeroVh / 100) * viewportHeight;
 
-    scrollContainerRef.current?.scrollTo({
-      top: targetScrollY,
-      behavior: 'smooth',
-    });
-  };
+    animateScrollTo(targetScrollY);
+  }, [animateScrollTo, scopeEndVh, scopeStartVh]);
 
-  const scrollToStart = () => {
-    scrollContainerRef.current?.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-  };
+  const scrollToStart = useCallback(() => {
+    animateScrollTo(0);
+  }, [animateScrollTo]);
+
+  const scrollToHeroProgress = useCallback((targetProgress) => {
+    const viewportHeight = scrollContainerRef.current?.clientHeight || window.innerHeight || 1;
+    const scrollableHero = Math.max((HERO_SCROLL_HEIGHT / 100) * viewportHeight - viewportHeight, 1);
+
+    animateScrollTo(targetProgress * scrollableHero);
+  }, [animateScrollTo]);
+
+  const scrubToMeterPosition = useCallback((targetPosition) => {
+    const lowerIndex = Math.floor(clamp(targetPosition, 0, phaseTargets.length - 1));
+    const upperIndex = Math.min(lowerIndex + 1, phaseTargets.length - 1);
+    const localProgress = clamp(targetPosition - lowerIndex);
+    const lowerPhase = phaseTargets[lowerIndex];
+    const upperPhase = phaseTargets[upperIndex];
+    const targetProgress =
+      lowerPhase.progress + (upperPhase.progress - lowerPhase.progress) * localProgress;
+
+    scrollToHeroProgress(targetProgress);
+  }, [phaseTargets, scrollToHeroProgress]);
+
+  const navigateToPhase = useCallback((targetIndex) => {
+    const phaseIndex = Math.round(clamp(targetIndex, 0, phaseTargets.length - 1));
+    const phase = phaseTargets[phaseIndex];
+
+    scrollToHeroProgress(phase.progress);
+  }, [phaseTargets, scrollToHeroProgress]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (isSectionPageOpen || getInteractiveElement(event.target)) {
+        return;
+      }
+
+      if (event.code === 'Space' || event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+        event.preventDefault();
+        navigateToPhase(currentPhaseIndex + 1);
+      } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        navigateToPhase(currentPhaseIndex - 1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currentPhaseIndex, isSectionPageOpen, navigateToPhase]);
 
   return (
     <div
@@ -146,6 +287,13 @@ function App() {
         transitionMs={SECTION_PAGE_TRANSITION_MS}
       />
       <LoadingScreen />
+      <ScrollMeter
+        activeIndex={currentPhaseIndex}
+        meterPosition={meterPosition}
+        phases={phaseTargets}
+        onScrub={scrubToMeterPosition}
+        onSelectPhase={navigateToPhase}
+      />
       <button
         type="button"
         onClick={scrollToStart}

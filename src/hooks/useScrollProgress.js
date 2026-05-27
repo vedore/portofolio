@@ -32,10 +32,22 @@ export function useScrollProgress({
       const heroProgress = clamp(scrollTop / scrollableHero);
       const progress = clamp((scrollTop - animationStartPx) / animationRangePx);
 
-      setState({
-        progress,
-        heroProgress,
-        isMobile: window.innerWidth < 768,
+      const isMobile = window.innerWidth < 768;
+
+      setState((previous) => {
+        if (
+          Math.abs(previous.progress - progress) < 0.001 &&
+          Math.abs(previous.heroProgress - heroProgress) < 0.001 &&
+          previous.isMobile === isMobile
+        ) {
+          return previous;
+        }
+
+        return {
+          progress,
+          heroProgress,
+          isMobile,
+        };
       });
     };
 
