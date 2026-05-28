@@ -118,6 +118,11 @@ function App() {
       closeTimerRef.current = null;
     }
 
+    if (scrollAnimationRef.current) {
+      window.cancelAnimationFrame(scrollAnimationRef.current);
+      scrollAnimationRef.current = 0;
+    }
+
     setActiveSection(section);
     window.requestAnimationFrame(() => {
       setIsSectionPageOpen(true);

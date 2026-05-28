@@ -213,7 +213,7 @@ function ScopeView({
           onClick={() => onNavigateSpecimen?.(currentIndex + 1)}
         />
 
-        <div className="relative h-full w-full overflow-hidden rounded-full border border-white/10 bg-white shadow-[0_0_22px_rgba(0,0,0,0.3)] [contain:layout_paint_style]">
+        <div className="relative h-full w-full overflow-hidden rounded-full border border-white/10 bg-white [contain:layout_paint_style]">
           <div className="pointer-events-none absolute inset-x-[12%] top-[13%] h-[1px] bg-black/8" />
           <div className="pointer-events-none absolute inset-x-[12%] bottom-[13%] h-[1px] bg-black/8" />
 
@@ -239,7 +239,6 @@ function ScopeView({
           </div>
 
           <div className="pointer-events-none absolute inset-0 rounded-full border border-black/10" />
-          <div className="pointer-events-none absolute inset-0 rounded-full shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),inset_0_0_18px_rgba(0,0,0,0.12)]" />
         </div>
 
         <div className="pointer-events-none absolute -bottom-8 left-1/2 flex -translate-x-1/2 gap-2">

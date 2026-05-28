@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import AboutPage from './section-pages/AboutPage';
 import ProjectsPage from './section-pages/ProjectsPage'
 import SkillsPage from './section-pages/SkillsPage';
@@ -43,15 +44,42 @@ function SectionPage({
   isNavigating = false,
   transitionMs = 520,
 }) {
-  if (!section) {
-    return null;
-  }
-
   const textHighlight =
     "box-decoration-clone rounded-xl bg-emerald-100/80 px-2 py-1 text-black shadow-[inset_0_-0.45em_0_rgba(110,231,183,0.45)]";
 
   const whiteWashDuration = Math.round(transitionMs * 1.2);
   const contentDelay = Math.round(transitionMs * 0.4);
+  const contentTransitionDuration = Math.round(transitionMs * 0.42);
+  const [isContentTransitioning, setIsContentTransitioning] = useState(true);
+  const [isWhiteWashVisible, setIsWhiteWashVisible] = useState(true);
+
+  useEffect(() => {
+    if (!section) {
+      setIsContentTransitioning(true);
+      setIsWhiteWashVisible(true);
+      return undefined;
+    }
+
+    setIsContentTransitioning(true);
+    setIsWhiteWashVisible(true);
+
+    const contentTimerId = window.setTimeout(() => {
+      setIsContentTransitioning(false);
+    }, contentDelay + contentTransitionDuration);
+
+    const washTimerId = window.setTimeout(() => {
+      setIsWhiteWashVisible(false);
+    }, whiteWashDuration);
+
+    return () => {
+      window.clearTimeout(contentTimerId);
+      window.clearTimeout(washTimerId);
+    };
+  }, [contentDelay, contentTransitionDuration, isOpen, section, whiteWashDuration]);
+
+  if (!section) {
+    return null;
+  }
 
   return (
     <div
@@ -66,25 +94,27 @@ function SectionPage({
         }}
       />
 
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div
-          className="aspect-square rounded-full bg-[radial-gradient(circle_at_center,_rgba(255,255,255,1)_0%,_rgba(255,255,255,0.98)_58%,_rgba(255,255,255,0.94)_74%,_rgba(255,255,255,0.16)_100%)]"
-          style={{
-            width: 'min(58vw, 30rem)',
-            transform: `scale(${isOpen ? 7.5 : 1})`,
-            opacity: isOpen ? 1 : 0,
-            transition: `transform ${whiteWashDuration}ms cubic-bezier(0.22, 1, 0.36, 1), opacity ${Math.round(whiteWashDuration * 0.42)}ms ease`,
-          }}
-        />
-      </div>
+      {isWhiteWashVisible && (
+        <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+          <div
+            className="aspect-square rounded-full bg-[radial-gradient(circle_at_center,_rgba(255,255,255,1)_0%,_rgba(255,255,255,0.98)_58%,_rgba(255,255,255,0.94)_74%,_rgba(255,255,255,0.16)_100%)]"
+            style={{
+              width: 'min(58vw, 30rem)',
+              transform: `scale(${isOpen ? 7.5 : 1})`,
+              opacity: isOpen ? 1 : 0,
+              transition: `transform ${whiteWashDuration}ms cubic-bezier(0.22, 1, 0.36, 1), opacity ${Math.round(whiteWashDuration * 0.42)}ms ease`,
+            }}
+          />
+        </div>
+      )}
 
       <div
         className="relative z-10 h-full overflow-y-auto"
         style={{
           contentVisibility: isOpen ? 'visible' : 'hidden',
           opacity: isOpen ? 1 : 0,
-          transform: `translateY(${isOpen ? '0px' : '24px'})`,
-          transition: `opacity ${Math.round(transitionMs * 0.42)}ms ease ${isOpen ? contentDelay : 0}ms, transform ${Math.round(transitionMs * 0.42)}ms cubic-bezier(0.22, 1, 0.36, 1) ${isOpen ? contentDelay : 0}ms`,
+          transform: isOpen && !isContentTransitioning ? 'none' : `translateY(${isOpen ? '0px' : '24px'})`,
+          transition: `opacity ${contentTransitionDuration}ms ease ${isOpen ? contentDelay : 0}ms, transform ${contentTransitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1) ${isOpen ? contentDelay : 0}ms`,
         }}
       >
         <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col px-6 py-8 md:px-10 md:py-10">

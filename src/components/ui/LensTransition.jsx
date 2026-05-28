@@ -22,7 +22,7 @@ function LensTransition({ progress, isMobile }) {
 
   const blackIrisOpacity = scopeReveal;
 
-  if (overlayOpacity <= 0) {
+  if (overlayOpacity <= 0 || scopeReveal >= 1) {
     return null;
   }
 
