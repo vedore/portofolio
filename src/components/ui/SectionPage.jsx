@@ -81,6 +81,7 @@ function SectionPage({
       <div
         className="relative z-10 h-full overflow-y-auto"
         style={{
+          contentVisibility: isOpen ? 'visible' : 'hidden',
           opacity: isOpen ? 1 : 0,
           transform: `translateY(${isOpen ? '0px' : '24px'})`,
           transition: `opacity ${Math.round(transitionMs * 0.42)}ms ease ${isOpen ? contentDelay : 0}ms, transform ${Math.round(transitionMs * 0.42)}ms cubic-bezier(0.22, 1, 0.36, 1) ${isOpen ? contentDelay : 0}ms`,

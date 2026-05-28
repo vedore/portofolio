@@ -12,7 +12,7 @@ const END_MOVE_END = 0.84;
 const END_HOLD_END = 0.9;
 
 function ScrollCamera({ progress, isMobile }) {
-  const { camera } = useThree();
+  const { camera, invalidate } = useThree();
   const currentPosition = useRef(new THREE.Vector3());
   const currentTarget = useRef(new THREE.Vector3());
   const desiredPosition = useRef(new THREE.Vector3());
@@ -37,11 +37,13 @@ function ScrollCamera({ progress, isMobile }) {
     currentTarget.current.copy(path.target);
     camera.position.copy(path.start);
     camera.lookAt(path.target);
-  }, [camera, path]);
+    invalidate();
+  }, [camera, invalidate, path]);
 
   useEffect(() => {
     progressRef.current = progress;
-  }, [progress]);
+    invalidate();
+  }, [invalidate, progress]);
 
   useEffect(() => {
     function handleKeyDown(event) {
@@ -93,12 +95,20 @@ function ScrollCamera({ progress, isMobile }) {
 
     desiredTarget.current.copy(path.target);
 
+    const shouldContinue =
+      currentPosition.current.distanceToSquared(desiredPosition.current) > 0.000001 ||
+      currentTarget.current.distanceToSquared(desiredTarget.current) > 0.000001;
     const damping = 1 - Math.exp(-delta * 5);
+
     currentPosition.current.lerp(desiredPosition.current, damping);
     currentTarget.current.lerp(desiredTarget.current, damping);
 
     camera.position.copy(currentPosition.current);
     camera.lookAt(currentTarget.current);
+
+    if (shouldContinue) {
+      invalidate();
+    }
   });
 
   return null;

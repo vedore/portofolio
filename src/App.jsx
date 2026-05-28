@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Scene from './components/scene/Scene';
 import LensTransition from './components/ui/LensTransition';
 import ScopeView from './components/ui/ScopeView';
-import SectionPage from './components/ui/SectionPage';
 import LoadingScreen from './components/ui/LoadingScreen';
 import ScrollMeter from './components/ui/ScrollMeter';
 import { Analytics } from '@vercel/analytics/react';
@@ -20,9 +19,12 @@ const SECTION_HOLD_START = 0.38;
 const CAMERA_MID_PROGRESS = 0.5;
 const CAMERA_END_PROGRESS = 0.87;
 const CAMERA_SCOPE_ENTRY_PROGRESS = 1;
+const SectionPage = lazy(() => import('./components/ui/SectionPage'));
 
 const ENABLE_DEV_CONTROLS = import.meta.env.VITE_ENABLE_ORBIT === 'true';
 const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+const getMeasuredViewportHeight = (container) =>
+  container?.clientHeight || window.visualViewport?.height || window.innerHeight || 1;
 const getInteractiveElement = (element) => element?.closest?.('input, textarea, select, button, a');
 const easeInOutCubic = (value) =>
   value < 0.5 ? 4 * value * value * value : 1 - ((-2 * value + 2) ** 3) / 2;
@@ -132,6 +134,32 @@ function App() {
   );
 
   useEffect(() => {
+    const setAppViewportSize = () => {
+      const viewport = window.visualViewport;
+      const width = viewport?.width || window.innerWidth || document.documentElement.clientWidth;
+      const height = viewport?.height || window.innerHeight || document.documentElement.clientHeight;
+
+      document.documentElement.style.setProperty('--app-width', `${width}px`);
+      document.documentElement.style.setProperty('--app-height', `${height}px`);
+    };
+
+    setAppViewportSize();
+    const resizeTarget = window.visualViewport ?? window;
+
+    window.addEventListener('resize', setAppViewportSize);
+    if (resizeTarget !== window) {
+      resizeTarget.addEventListener('resize', setAppViewportSize);
+    }
+
+    return () => {
+      window.removeEventListener('resize', setAppViewportSize);
+      if (resizeTarget !== window) {
+        resizeTarget.removeEventListener('resize', setAppViewportSize);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     const previousBodyOverflow = document.body.style.overflow;
     const previousHtmlOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -209,7 +237,7 @@ function App() {
     const scopeContentInput = inverseSmoothstep(contentProgress);
     const targetScopeProgress = 0.16 + scopeContentInput * 0.9;
     const targetHeroVh = scopeStartVh + targetScopeProgress * (scopeEndVh - scopeStartVh);
-    const viewportHeight = scrollContainerRef.current?.clientHeight || window.innerHeight || 1;
+    const viewportHeight = getMeasuredViewportHeight(scrollContainerRef.current);
     const targetScrollY = (targetHeroVh / 100) * viewportHeight;
 
     animateScrollTo(targetScrollY);
@@ -220,7 +248,7 @@ function App() {
   }, [animateScrollTo]);
 
   const scrollToHeroProgress = useCallback((targetProgress) => {
-    const viewportHeight = scrollContainerRef.current?.clientHeight || window.innerHeight || 1;
+    const viewportHeight = getMeasuredViewportHeight(scrollContainerRef.current);
     const scrollableHero = Math.max((HERO_SCROLL_HEIGHT / 100) * viewportHeight - viewportHeight, 1);
 
     animateScrollTo(targetProgress * scrollableHero);
@@ -270,7 +298,8 @@ function App() {
   return (
     <div
       ref={scrollContainerRef}
-      className="relative h-screen overflow-x-hidden overflow-y-auto bg-slate-50 text-slate-900 overscroll-y-contain"
+      className="relative overflow-x-hidden overflow-y-auto bg-slate-50 text-slate-900 overscroll-y-contain"
+      style={{ height: 'var(--app-height)' }}
     >
       <Scene progress={progress} isMobile={isMobile} scopeProgress={scopeProgress} />
       <LensTransition progress={progress} isMobile={isMobile} />
@@ -280,12 +309,14 @@ function App() {
         onOpenSection={openSectionPage}
         onNavigateSpecimen={navigateToSpecimen}
       />
-      <SectionPage
-        section={activeSection}
-        isOpen={isSectionPageOpen}
-        onClose={closeSectionPage}
-        transitionMs={SECTION_PAGE_TRANSITION_MS}
-      />
+      <Suspense fallback={null}>
+        <SectionPage
+          section={activeSection}
+          isOpen={isSectionPageOpen}
+          onClose={closeSectionPage}
+          transitionMs={SECTION_PAGE_TRANSITION_MS}
+        />
+      </Suspense>
       <LoadingScreen />
       <ScrollMeter
         activeIndex={currentPhaseIndex}
@@ -305,14 +336,17 @@ function App() {
       <main className={`relative z-20 ${ENABLE_DEV_CONTROLS ? 'pointer-events-none' : ''}`}>
         <section
           className="relative overflow-hidden px-6"
-          style={{ height: `${HERO_SCROLL_HEIGHT}vh` }}
+          style={{ height: `calc(var(--app-height) * ${HERO_SCROLL_HEIGHT / 100})` }}
         >
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/60 via-white/10 to-transparent" />
-          <div style={{ height: `${HERO_STICKY_START_OFFSET}vh` }} />
-          <div className="sticky top-0 min-h-screen w-full">
-            <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-start gap-6 py-16">
+          <div style={{ height: `calc(var(--app-height) * ${HERO_STICKY_START_OFFSET / 100})` }} />
+          <div className="sticky top-0 w-full" style={{ minHeight: 'var(--app-height)' }}>
+            <div
+              className="mx-auto flex w-full max-w-6xl flex-col justify-start gap-6 py-16"
+              style={{ minHeight: 'var(--app-height)' }}
+            >
               <div
-                className="max-w-xl rounded-3xl border border-white/50 bg-white/45 p-8 shadow-xl shadow-sky-100/50 backdrop-blur-md transition-opacity duration-300"
+                className="max-w-xl rounded-3xl border border-white/50 bg-white/45 p-8 shadow-xl shadow-sky-100/50 backdrop-blur-sm transition-opacity duration-300 md:backdrop-blur-md"
                 style={{ opacity: heroCardOpacity }}
               >
                 <p className="mb-4 text-sm font-medium uppercase tracking-[0.28em] text-lab-deep/70">

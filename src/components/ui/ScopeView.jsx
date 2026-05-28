@@ -186,7 +186,7 @@ function ScopeView({
           →
         </button>
 
-        <div className="relative h-full w-full overflow-hidden rounded-full border border-white/10 bg-white shadow-[0_0_48px_rgba(0,0,0,0.42)] [contain:layout_paint_style]">
+        <div className="relative h-full w-full overflow-hidden rounded-full border border-white/10 bg-white shadow-[0_0_30px_rgba(0,0,0,0.34)] [contain:layout_paint_style] md:shadow-[0_0_48px_rgba(0,0,0,0.42)]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#ffffff_0%,_#f5f7f7_56%,_#d9dddd_100%)]" />
           <div className="pointer-events-none absolute inset-x-[12%] top-[13%] h-[1px] bg-black/8" />
           <div className="pointer-events-none absolute inset-x-[12%] bottom-[13%] h-[1px] bg-black/8" />
@@ -213,7 +213,7 @@ function ScopeView({
           </div>
 
           <div className="pointer-events-none absolute inset-0 rounded-full border border-black/10" />
-          <div className="pointer-events-none absolute inset-0 rounded-full shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),inset_0_0_34px_rgba(0,0,0,0.16)]" />
+          <div className="pointer-events-none absolute inset-0 rounded-full shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),inset_0_0_24px_rgba(0,0,0,0.14)] md:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),inset_0_0_34px_rgba(0,0,0,0.16)]" />
         </div>
 
         <div className="pointer-events-none absolute -bottom-8 left-1/2 flex -translate-x-1/2 gap-2">

@@ -84,7 +84,7 @@ function LoadingScreen() {
         </div>
       </div>
 
-      <div className="relative z-10 w-full max-w-sm rounded-[2rem] border border-white/60 bg-white/[0.6] px-7 py-8 shadow-[0_20px_70px_rgba(29,78,52,0.16)] backdrop-blur-md">
+      <div className="relative z-10 w-full max-w-sm rounded-[2rem] border border-white/60 bg-white/[0.6] px-7 py-8 shadow-[0_20px_70px_rgba(29,78,52,0.16)] backdrop-blur-sm md:backdrop-blur-md">
         <div className="absolute inset-0 rounded-[2rem] border border-emerald-200/25" />
         <p className="text-center text-sm font-medium uppercase tracking-[0.24em] text-slate-700">
           Focusing the lens...
