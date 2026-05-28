@@ -4,8 +4,16 @@ function Lights({ enableShadows = false }) {
       <ambientLight intensity={1.15} color="#f2f8ff" />
       <directionalLight
         position={[4, 8, 6]}
-        intensity={1.55}
-        color="#ffffff"
+        intensity={1.35}
+        color="#fff5df"
+        castShadow={enableShadows}
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
+      />
+      <directionalLight
+        position={[-3, 5.5, 2.2]}
+        intensity={1.15}
+        color="#ffd78f"
         castShadow={enableShadows}
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}

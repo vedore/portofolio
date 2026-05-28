@@ -8,7 +8,7 @@ export const MODEL_SCALE = 1.35;
 
 const COLORS = {
   background: '#101820', // deep navy
-  floorSpot: '#2DD4BF',  // vivid teal
+  floorSpot: '#A88F6A',  // vivid teal
   accent: '#FBBF24',     // warm yellow
   softLight: '#A7F3D0',  // mint fill
   shadow: '#050A0D',     // almost black
@@ -46,17 +46,16 @@ function MicroscopeModel() {
         scale={MODEL_SCALE}
       />
 
-      {/* Spot/floor under microscope */}
+      {/* Shallow sand cone under microscope */}
       <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -1.52, 0]}
+        position={[0, -1.68, 0]}
         receiveShadow
       >
-        <circleGeometry args={[3.2, 96]} />
+        <coneGeometry args={[3.2, 0.34, 64, 1, false]} />
         <meshStandardMaterial
           color={COLORS.floorSpot}
-          roughness={0.72}
-          metalness={0.03}
+          roughness={0.9}
+          metalness={0.00}
           emissive={COLORS.emissive}
           emissiveIntensity={0.14}
         />

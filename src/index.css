@@ -127,15 +127,17 @@ body {
   animation: loader-particle-float 8.8s ease-in-out infinite;
 }
 
-@media (max-width: 767px), (prefers-reduced-motion: reduce) {
-  .loader-wave,
-  .loader-particles {
-    display: none;
-  }
-
+@media (prefers-reduced-motion: no-preference) {
   .loader-scan-band {
     animation-duration: 7s;
     opacity: 0.72;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader-wave,
+  .loader-particles {
+    display: none;
   }
 }
 

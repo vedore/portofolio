@@ -60,20 +60,20 @@ function ScrollMeter({ activeIndex, meterPosition, phases = [], onScrub, onSelec
 
   return (
     <div
-      className="fixed inset-x-0 z-40 flex justify-center px-5"
-      style={{ bottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
+      className="fixed inset-x-0 z-40 flex justify-center px-5 md:px-5"
+      style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
     >
-      <div className="flex w-full max-w-sm items-center gap-3 rounded-full border border-white/60 bg-white/75 px-3 py-2.5 shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-sm md:max-w-4xl md:px-4 md:py-3 md:backdrop-blur-md">
+      <div className="flex w-full max-w-[18rem] items-center gap-1.5 rounded-full border border-white/60 bg-white/80 px-2.5 py-2 shadow-[0_6px_18px_rgba(15,23,42,0.1)] md:max-w-4xl md:gap-3 md:px-4 md:py-3">
         <button
           type="button"
           onClick={() => onSelectPhase?.(activeIndex - 1)}
           disabled={!canGoPrevious}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white/75 text-lg font-semibold text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-35 md:hidden"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white/75 text-base font-semibold text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-35 md:hidden"
           aria-label="Previous phase"
         >
           ←
         </button>
-        <span className="w-20 text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-slate-600">
+        <span className="min-w-0 flex-1 truncate text-center text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-slate-600 md:w-20 md:flex-none md:text-left md:text-[0.62rem] md:tracking-[0.22em]">
           {activePhase?.label ?? 'Start'}
         </span>
         <button
@@ -91,8 +91,8 @@ function ScrollMeter({ activeIndex, meterPosition, phases = [], onScrub, onSelec
         >
           <span className="absolute left-0 top-1/2 h-1 w-full -translate-y-1/2 rounded-full bg-slate-400" />
           <span
-            className="absolute left-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-emerald-500"
-            style={{ width: `${positionRatio * 100}%` }}
+            className="absolute left-0 top-1/2 h-1 w-full origin-left -translate-y-1/2 rounded-full bg-emerald-500"
+            style={{ transform: `translateY(-50%) scaleX(${positionRatio})` }}
           />
           <span
             className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-emerald-500 shadow-[0_2px_8px_rgba(15,23,42,0.24)]"
@@ -103,7 +103,7 @@ function ScrollMeter({ activeIndex, meterPosition, phases = [], onScrub, onSelec
           type="button"
           onClick={() => onSelectPhase?.(activeIndex + 1)}
           disabled={!canGoNext}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white/75 text-lg font-semibold text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-35 md:hidden"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white/75 text-base font-semibold text-slate-700 transition hover:border-emerald-200 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-35 md:hidden"
           aria-label="Next phase"
         >
           →

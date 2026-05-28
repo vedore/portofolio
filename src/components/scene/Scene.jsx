@@ -5,12 +5,15 @@ import ScrollCamera from './ScrollCamera';
 import Lights from './Lights';
 import Environment from './Environment';
 import CameraTuner from './CameraTuner';
+import MicroscopeChamber from './MicroscopeChamber';
+import SunBeam from './SunBeam';
+import WavePlane from './WavePlane';
 import { CAMERA_PATH } from '../../config/cameraPath';
 
 const ENABLE_DEV_CONTROLS = import.meta.env.VITE_ENABLE_ORBIT === 'true';
 const ENABLE_SHADOWS = false;
 
-function Scene({ progress, isMobile, scopeProgress = 0 }) {
+function Scene({ progress, isMobile, scopeProgress = 0, chamberTheme = 'day' }) {
   const [hasWebGL, setHasWebGL] = useState(true);
   const devCameraPath = isMobile ? CAMERA_PATH.mobile : CAMERA_PATH.desktop;
   const scopeFade = Math.min(1, Math.max(0, (scopeProgress - 0.08) / 0.22));
@@ -45,16 +48,19 @@ function Scene({ progress, isMobile, scopeProgress = 0 }) {
         frameloop={ENABLE_DEV_CONTROLS ? 'always' : 'demand'}
         camera={{ position: [0, 2.4, 7.4], fov: isMobile ? 42 : 35, near: 0.1, far: 100 }}
         gl={{
-          antialias: !isMobile,
+          antialias: false,
           alpha: true,
           powerPreference: 'default',
         }}
       >
-        <color attach="background" args={['#101820']} />
+        <color attach="background" args={['#2F7F8F']} />
         <Suspense fallback={null}>
           <Environment isMobile={isMobile} />
           <Lights enableShadows={ENABLE_SHADOWS} />
           {!ENABLE_DEV_CONTROLS ? <ScrollCamera progress={progress} isMobile={isMobile} /> : null}
+          <MicroscopeChamber themeMode={chamberTheme} />
+          <WavePlane isActive={scopeFade < 1} isMobile={isMobile} themeMode={chamberTheme} />
+          <SunBeam themeMode={chamberTheme} />
           <MicroscopeModel />
         </Suspense>
 

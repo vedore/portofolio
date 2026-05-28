@@ -1,4 +1,4 @@
-const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+import { clamp } from '../../utils/progress.js';
 
 function LensTransition({ progress, isMobile }) {
 
@@ -21,6 +21,10 @@ function LensTransition({ progress, isMobile }) {
   const blackIrisScale = 0.45 + scopeReveal * (isMobile ? 4.4 : 6.2);
 
   const blackIrisOpacity = scopeReveal;
+
+  if (overlayOpacity <= 0) {
+    return null;
+  }
 
   return (
     <div
@@ -45,7 +49,7 @@ function LensTransition({ progress, isMobile }) {
 
       <div className="absolute inset-0 flex items-center justify-center">
         <div
-          className="rounded-full border border-red-900/35 bg-[radial-gradient(circle_at_center,_rgba(255,120,120,0.92)_0%,_rgba(180,20,20,0.9)_34%,_rgba(70,0,0,0.86)_64%,_rgba(12,0,0,0.94)_100%)] shadow-[0_0_80px_rgba(120,0,0,0.35)]"
+          className="rounded-full border border-red-900/35 bg-[radial-gradient(circle_at_center,_rgba(255,120,120,0.92)_0%,_rgba(180,20,20,0.9)_34%,_rgba(70,0,0,0.86)_64%,_rgba(12,0,0,0.94)_100%)] shadow-[0_0_48px_rgba(120,0,0,0.28)]"
           style={{
             width: '18rem',
             height: '18rem',
@@ -57,7 +61,7 @@ function LensTransition({ progress, isMobile }) {
 
       <div className="absolute inset-0 flex items-center justify-center">
         <div
-          className="rounded-full border border-black/40 bg-[radial-gradient(circle_at_center,_rgba(24,24,24,0.2)_0%,_rgba(8,8,8,0.82)_56%,_rgba(0,0,0,1)_100%)] shadow-[0_0_80px_rgba(0,0,0,0.48)]"
+          className="rounded-full border border-black/40 bg-[radial-gradient(circle_at_center,_rgba(24,24,24,0.2)_0%,_rgba(8,8,8,0.82)_56%,_rgba(0,0,0,1)_100%)] shadow-[0_0_48px_rgba(0,0,0,0.38)]"
           style={{
             width: '18rem',
             height: '18rem',
