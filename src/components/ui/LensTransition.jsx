@@ -1,20 +1,20 @@
 import { clamp } from '../../utils/progress.js';
 
-function LensTransition({ progress, isMobile }) {
+function LensTransition({ progress, scopeProgress = 0, isMobile }) {
 
-  const approach = clamp((progress - 0.8) / 0.026);
+  const approach = clamp((progress - 0.82) / 0.12);
 
-  const redEntry = clamp((progress - 0.922) / 0.02);
+  const redEntry = clamp((progress - 0.88) / 0.08);
 
-  const scopeReveal = clamp((progress - 0.92) / 0.038);
+  const scopeReveal = clamp(scopeProgress / 0.04);
 
-  const overlayOpacity = clamp((progress - 0.9) / 0.058);
+  const overlayOpacity = clamp((progress - 0.82) / 0.12) * (1 - scopeReveal);
 
   const blurAmount = approach * (isMobile ? 2 : 4);
 
-  const redGlowOpacity = (0.18 + approach * 0.3) * Math.pow(1 - scopeReveal, 0);
+  const redGlowOpacity = (0.18 + approach * 0.3) * (1 - scopeReveal * 0.55);
 
-  const redFillOpacity = redEntry * (1 - scopeReveal) * Math.pow(1 - scopeReveal, 0.01);
+  const redFillOpacity = redEntry * (1 - scopeReveal * 0.92);
 
   const redCoreScale = 0.7 + approach * 0.4 + redEntry * 1.6;
 

@@ -24,7 +24,7 @@ const ENABLE_DEV_CONTROLS = import.meta.env.VITE_ENABLE_ORBIT === 'true';
 
 function App() {
   const [activeSection, setActiveSection] = useState(null);
-  const [chamberTheme, setChamberTheme] = useState('day');
+  const [chamberTheme, setChamberTheme] = useState('cold');
   const [isSectionPageOpen, setIsSectionPageOpen] = useState(false);
   const closeTimerRef = useRef(null);
   const scrollAnimationRef = useRef(0);
@@ -138,7 +138,7 @@ function App() {
   }, []);
 
   const toggleChamberTheme = useCallback(() => {
-    setChamberTheme((theme) => (theme === 'day' ? 'night' : 'day'));
+    setChamberTheme((theme) => (theme === 'warm' ? 'cold' : 'warm'));
   }, []);
 
   useEffect(() => {
@@ -175,7 +175,7 @@ function App() {
         scopeProgress={scopeProgress}
         chamberTheme={chamberTheme}
       />
-      <LensTransition progress={progress} isMobile={isMobile} />
+      <LensTransition progress={progress} scopeProgress={scopeProgress} isMobile={isMobile} />
       <ScopeView
         scopeProgress={scopeProgress}
         isMobile={isMobile}
@@ -204,7 +204,7 @@ function App() {
           onClick={toggleChamberTheme}
           className="rounded-full border border-white/60 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-800 shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:text-black"
         >
-          {chamberTheme === 'day' ? 'Night' : 'Day'}
+          {chamberTheme === 'warm' ? 'Cold' : 'Warm'}
         </button>
         <button
           type="button"

@@ -45,21 +45,6 @@ function MicroscopeModel() {
         rotation={MODEL_ROTATION}
         scale={MODEL_SCALE}
       />
-
-      {/* Shallow sand cone under microscope */}
-      <mesh
-        position={[0, -1.68, 0]}
-        receiveShadow
-      >
-        <coneGeometry args={[3.2, 0.34, 64, 1, false]} />
-        <meshStandardMaterial
-          color={COLORS.floorSpot}
-          roughness={0.9}
-          metalness={0.00}
-          emissive={COLORS.emissive}
-          emissiveIntensity={0.14}
-        />
-      </mesh>
     </group>
   );
 }

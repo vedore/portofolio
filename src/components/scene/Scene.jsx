@@ -3,17 +3,15 @@ import { Canvas } from '@react-three/fiber';
 import MicroscopeModel from './MicroscopeModel';
 import ScrollCamera from './ScrollCamera';
 import Lights from './Lights';
-import Environment from './Environment';
 import CameraTuner from './CameraTuner';
 import MicroscopeChamber from './MicroscopeChamber';
-import SunBeam from './SunBeam';
-import WavePlane from './WavePlane';
+import WaterfallPlane from './WaterfallPlane';
 import { CAMERA_PATH } from '../../config/cameraPath';
 
 const ENABLE_DEV_CONTROLS = import.meta.env.VITE_ENABLE_ORBIT === 'true';
 const ENABLE_SHADOWS = false;
 
-function Scene({ progress, isMobile, scopeProgress = 0, chamberTheme = 'day' }) {
+function Scene({ progress, isMobile, scopeProgress = 0, chamberTheme = 'warm' }) {
   const [hasWebGL, setHasWebGL] = useState(true);
   const devCameraPath = isMobile ? CAMERA_PATH.mobile : CAMERA_PATH.desktop;
   const scopeFade = Math.min(1, Math.max(0, (scopeProgress - 0.08) / 0.22));
@@ -53,14 +51,14 @@ function Scene({ progress, isMobile, scopeProgress = 0, chamberTheme = 'day' }) 
           powerPreference: 'default',
         }}
       >
-        <color attach="background" args={['#2F7F8F']} />
+        {/*BackGround Color */}
+        <color attach="background" args={['#FFFFFF']} />
+
         <Suspense fallback={null}>
-          <Environment isMobile={isMobile} />
-          <Lights enableShadows={ENABLE_SHADOWS} />
+          <Lights enableShadows={ENABLE_SHADOWS} themeMode={chamberTheme} />
           {!ENABLE_DEV_CONTROLS ? <ScrollCamera progress={progress} isMobile={isMobile} /> : null}
           <MicroscopeChamber themeMode={chamberTheme} />
-          <WavePlane isActive={scopeFade < 1} isMobile={isMobile} themeMode={chamberTheme} />
-          <SunBeam themeMode={chamberTheme} />
+          <WaterfallPlane isActive={scopeFade < 1} themeMode={chamberTheme} />
           <MicroscopeModel />
         </Suspense>
 

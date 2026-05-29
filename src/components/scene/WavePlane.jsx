@@ -83,7 +83,7 @@ function WavePlane({ isActive = true, isMobile = false, themeMode = 'day' }) {
 
   return (
     <mesh
-      position={[-20, -1.5, -15]}
+      position={[-27, -3.2, 0]}
       rotation={[-Math.PI / 2, 0, 0]}
       renderOrder={-1}
     >
