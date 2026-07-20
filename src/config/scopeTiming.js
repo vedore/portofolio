@@ -1,5 +1,5 @@
 export const HERO_SCROLL_HEIGHT = 900;
-export const HERO_STICKY_START_OFFSET = 50;
+export const HERO_STICKY_START_OFFSET = 40;
 export const HERO_ANIMATION_START = 0;
 export const HERO_ANIMATION_END = 220;
 export const HERO_SCOPE_START = 220;

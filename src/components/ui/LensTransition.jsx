@@ -10,8 +10,6 @@ function LensTransition({ progress, scopeProgress = 0, isMobile }) {
 
   const overlayOpacity = clamp((progress - 0.82) / 0.12) * (1 - scopeReveal);
 
-  const blurAmount = approach * (isMobile ? 2 : 4);
-
   const redGlowOpacity = (0.18 + approach * 0.3) * (1 - scopeReveal * 0.55);
 
   const redFillOpacity = redEntry * (1 - scopeReveal * 0.92);
@@ -39,7 +37,6 @@ function LensTransition({ progress, scopeProgress = 0, isMobile }) {
 
       <div
         className="lens-vignette absolute inset-0 transition-opacity duration-200"
-        style={{ backdropFilter: blurAmount > 0 ? `blur(${blurAmount}px)` : 'none' }}
       />
 
       <div

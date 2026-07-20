@@ -7,6 +7,10 @@ import CameraTuner from './CameraTuner';
 import MicroscopeChamber from './MicroscopeChamber';
 import WaterfallPlane from './WaterfallPlane';
 import { CAMERA_PATH } from '../../config/cameraPath';
+import {
+  SCOPE_ACTIVATION_RANGE,
+  SCOPE_ACTIVATION_START,
+} from '../../config/scopeTiming.js';
 
 const ENABLE_DEV_CONTROLS = import.meta.env.VITE_ENABLE_ORBIT === 'true';
 const ENABLE_SHADOWS = false;
@@ -14,7 +18,10 @@ const ENABLE_SHADOWS = false;
 function Scene({ progress, isMobile, scopeProgress = 0, chamberTheme = 'warm' }) {
   const [hasWebGL, setHasWebGL] = useState(true);
   const devCameraPath = isMobile ? CAMERA_PATH.mobile : CAMERA_PATH.desktop;
-  const scopeFade = Math.min(1, Math.max(0, (scopeProgress - 0.08) / 0.22));
+  const scopeFade = Math.min(
+    1,
+    Math.max(0, (scopeProgress - SCOPE_ACTIVATION_START) / SCOPE_ACTIVATION_RANGE),
+  );
   const shouldUnmountScene = !ENABLE_DEV_CONTROLS && scopeFade >= 1;
 
   useEffect(() => {

@@ -55,6 +55,7 @@ function AboutPage({ section }) {
             <img
               src={photo}
               alt={`${name} portrait`}
+              decoding="async"
               className="h-full w-full object-cover"
             />
           </div>

@@ -11,6 +11,7 @@ import {
   HERO_ANIMATION_START,
   HERO_SCROLL_HEIGHT,
   HERO_STICKY_START_OFFSET,
+  SCOPE_ACTIVATION_START,
   SECTION_PAGE_TRANSITION_MS,
 } from './config/scopeTiming.js';
 import { useScopeProgress } from './hooks/useScopeProgress';
@@ -137,10 +138,6 @@ function App() {
     }, SECTION_PAGE_TRANSITION_MS);
   }, []);
 
-  const toggleChamberTheme = useCallback(() => {
-    setChamberTheme((theme) => (theme === 'warm' ? 'cold' : 'warm'));
-  }, []);
-
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (isSectionPageOpen || getInteractiveElement(event.target)) {
@@ -199,13 +196,15 @@ function App() {
         onSelectPhase={navigateToPhase}
       />
       <div className="fixed right-5 top-5 z-40 flex gap-2 md:right-8 md:top-8">
-        <button
-          type="button"
-          onClick={toggleChamberTheme}
-          className="rounded-full border border-white/60 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-800 shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:text-black"
-        >
-          {chamberTheme === 'warm' ? 'Cold' : 'Warm'}
-        </button>
+        {scopeProgress < SCOPE_ACTIVATION_START ? (
+          <button
+            type="button"
+            onClick={() => setChamberTheme((theme) => (theme === 'warm' ? 'cold' : 'warm'))}
+            className="rounded-full border border-white/60 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-800 shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:text-black"
+          >
+            {chamberTheme === 'warm' ? 'Cold' : 'Warm'}
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={scrollToStart}
@@ -240,6 +239,25 @@ function App() {
                   Enter the lens and move through a layered portfolio built around experiments,
                   projects, design, code, and the details that shape my work.
                 </p>
+
+                <div className="mt-6 flex items-center gap-3 border-t border-slate-900/10 pt-5">
+                  <span
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-800 text-lg text-white"
+                    aria-hidden="true"
+                  >
+                    ↓
+                  </span>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-900">
+                      How to explore
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                      {isMobile
+                        ? 'Swipe up to enter the lens, then use the arrows to browse specimens.'
+                        : 'Scroll, or for a more smooth experience, use the arrow keys.'}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
