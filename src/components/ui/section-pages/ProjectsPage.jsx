@@ -1,183 +1,181 @@
+import { DetailHero, Reveal, SectionHeading } from './DetailPageElements.jsx';
+
+function ProjectLinks({ project, inverted = false }) {
+  if (!project.links?.length) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-3">
+      {project.links.map((link) => (
+        <a
+          key={`${project.title}-${link.label}`}
+          href={link.href}
+          target="_blank"
+          rel="noreferrer"
+          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${
+            inverted
+              ? 'border-white/25 text-white hover:border-emerald-300 hover:text-emerald-300'
+              : 'border-slate-300 text-slate-800 hover:border-emerald-500 hover:text-emerald-800'
+          }`}
+        >
+          {link.label}
+          <span aria-hidden="true">↗</span>
+        </a>
+      ))}
+    </div>
+  );
+}
+
 function ProjectsPage({ section }) {
-    const label = section.label ?? "Specimen 02";
-    const title = section.title ?? "Projects";
+  const intro = section.detailIntro ?? section.text ?? 'Selected builds and case studies.';
+  const projects = section.projects ?? [];
+  const [featuredProject, ...otherProjects] = projects;
 
-    const intro =
-        section.detailIntro ??
-        section.text ??
-        "Selected builds, experiments, and case studies.";
+  return (
+    <div className="space-y-16 pb-16">
+      <DetailHero
+        kicker="Selected work / Case files"
+        title="Interfaces, systems, and research under the lens."
+        description={intro}
+        aside={(
+          <dl className="grid grid-cols-2 gap-5">
+            <div>
+              <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                Case files
+              </dt>
+              <dd className="mt-2 text-3xl font-semibold text-white">{projects.length}</dd>
+            </div>
+            <div>
+              <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                Focus
+              </dt>
+              <dd className="mt-2 text-base font-semibold leading-6 text-white">
+                Product and research
+              </dd>
+            </div>
+          </dl>
+        )}
+      />
 
-    const projects = section.projects ?? [];
+      {featuredProject ? (
+        <Reveal>
+          <section>
+            <SectionHeading
+              eyebrow="Featured specimen"
+              title="A closer look at the work"
+            />
 
-    const detailBlocks = section.detailBlocks ?? [];
-
-    const textHighlight =
-        "box-decoration-clone rounded-xl bg-emerald-100/80 px-2 py-1 text-black shadow-[inset_0_-0.45em_0_rgba(110,231,183,0.45)]";
-
-    const accessKindClasses = {
-        document:
-            "border-emerald-200 bg-emerald-50/90 text-emerald-950 hover:border-emerald-300 hover:bg-emerald-100/80",
-        github:
-            "border-slate-200 bg-slate-50/90 text-slate-900 hover:border-slate-300 hover:bg-slate-100/90",
-    };
-
-    return (
-        <div className="grid gap-8 py-8">
-            <section className="grid gap-6 rounded-[2rem] border border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(167,243,208,0.35),transparent_34%),linear-gradient(to_bottom,#f8fafc,#f1f5f9)] px-6 py-7 shadow-[0_12px_40px_rgba(15,23,42,0.06)] md:grid-cols-[1.1fr_0.9fr] md:items-end">
-                <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-                        {label}
-                    </p>
-
-                    <h2 className="mt-4 text-3xl font-semibold tracking-tight text-black md:text-5xl">
-                        <span className={textHighlight}>{title}</span>
-                    </h2>
-
-                    <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-700 md:text-base">
-                        {intro}
-                    </p>
+            <article className="mt-8 grid gap-8 overflow-hidden rounded-3xl bg-slate-950 px-6 py-8 text-white md:grid-cols-[1.25fr_0.75fr] md:px-9 md:py-10">
+              <div>
+                <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
+                  <span>Case File 01</span>
+                  {featuredProject.year ? <span>{featuredProject.year}</span> : null}
                 </div>
-
-                <div className="rounded-[1.75rem] border border-emerald-100 bg-white/80 px-5 py-5 shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
-                    <p className="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-slate-400">
-                        Observation Mode
-                    </p>
-
-                    <p className="mt-3 text-xl font-semibold tracking-tight text-black">
-                        Builds, experiments, and systems under the lens.
-                    </p>
-
-                    <p className="mt-3 text-sm leading-7 text-slate-600">
-                        Each project is treated like a focused sample: what it is, what it
-                        explores, and what technologies shaped it.
-                    </p>
+                <h3 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
+                  {featuredProject.title}
+                </h3>
+                <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300">
+                  {featuredProject.summary}
+                </p>
+                <div className="mt-7">
+                  <ProjectLinks project={featuredProject} inverted />
                 </div>
-            </section>
+              </div>
 
-            <section className="grid gap-5 md:grid-cols-3">
-                {projects.map((project, index) => (
-                    <article
-                        key={project.title}
-                        className="group flex min-h-[22rem] flex-col rounded-[2rem] border border-slate-200 bg-white px-6 py-7 shadow-[0_12px_40px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)]"
-                    >
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-emerald-700">
-                                    Case File {String(index + 1).padStart(2, "0")}
-                                </p>
+              <div className="border-t border-white/15 pt-6 md:border-l md:border-t-0 md:pl-8 md:pt-0">
+                <dl className="grid gap-5">
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      Type
+                    </dt>
+                    <dd className="mt-2 text-base font-medium text-white">
+                      {featuredProject.type}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      Status
+                    </dt>
+                    <dd className="mt-2 text-base font-medium text-white">
+                      {featuredProject.status}
+                    </dd>
+                  </div>
+                </dl>
 
-                                <h3 className="mt-4 text-xl font-semibold tracking-tight text-black">
-                                    {project.title}
-                                </h3>
-                            </div>
-
-                            {project.year && (
-                                <span className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-900">
-                                    {project.year}
-                                </span>
-                            )}
-                        </div>
-
-                        <div className="mt-4 flex flex-wrap gap-2">
-                            {project.type && (
-                                <span className="rounded-full bg-slate-100 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                                    {project.type}
-                                </span>
-                            )}
-
-                            {project.status && (
-                                <span className="rounded-full bg-emerald-100 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-emerald-900">
-                                    {project.status}
-                                </span>
-                            )}
-                        </div>
-
-                        <p className="mt-5 flex-1 text-sm leading-7 text-slate-700">
-                            {project.summary}
-                        </p>
-
-                        {project.tags?.length > 0 && (
-                            <div className="mt-6 flex flex-wrap gap-2">
-                                {project.tags.map((tag) => (
-                                    <span
-                                        key={tag}
-                                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-slate-500"
-                                    >
-                                        {tag}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
-
-                        {project.links?.length > 0 && (
-                            <div className="mt-7 border-t border-slate-200 pt-5">
-                                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-slate-400">
-                                    Specimen Access
-                                </p>
-
-                                <div className="mt-4 grid gap-3">
-                                    {project.links.map((link) => {
-                                        const kindClasses =
-                                            accessKindClasses[link.kind] ??
-                                            accessKindClasses.github;
-
-                                        return (
-                                            <a
-                                                key={`${project.title}-${link.label}`}
-                                                href={link.href}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className={`flex items-start justify-between gap-4 rounded-[1.25rem] border px-4 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition hover:-translate-y-0.5 ${kindClasses}`}
-                                            >
-                                                <div className="min-w-0">
-                                                    <p className="text-sm font-semibold tracking-tight">
-                                                        {link.label}
-                                                    </p>
-                                                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-current/70">
-                                                        {link.description}
-                                                    </p>
-                                                </div>
-
-                                                <span
-                                                    aria-hidden="true"
-                                                    className="mt-0.5 text-base font-medium text-current/75"
-                                                >
-                                                    ↗
-                                                </span>
-                                            </a>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-                    </article>
-                ))}
-            </section>
-
-            {detailBlocks.length > 0 && (
-                <section className="grid gap-6 md:grid-cols-2">
-                    {detailBlocks.map((block) => (
-                        <article
-                            key={block.heading}
-                            className="rounded-[2rem] border border-slate-200 bg-[radial-gradient(circle_at_top_right,rgba(209,250,229,0.7),transparent_35%),#ffffff] px-6 py-7 shadow-[0_12px_40px_rgba(15,23,42,0.05)]"
-                        >
-                            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-emerald-700">
-                                Field Note
-                            </p>
-
-                            <h3 className="mt-3 text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">
-                                {block.heading}
-                            </h3>
-
-                            <p className="mt-4 text-sm leading-7 text-slate-700">
-                                {block.text}
-                            </p>
-                        </article>
+                {featuredProject.tags?.length ? (
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {featuredProject.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full bg-white/10 px-3 py-1.5 text-sm text-slate-200"
+                      >
+                        {tag}
+                      </span>
                     ))}
-                </section>
-            )}
-        </div>
-    );
+                  </div>
+                ) : null}
+              </div>
+            </article>
+          </section>
+        </Reveal>
+      ) : null}
+
+      {otherProjects.length > 0 ? (
+        <Reveal>
+          <section className="rounded-3xl bg-white px-6 py-8 md:px-8 md:py-10">
+            <SectionHeading
+              eyebrow="More observations"
+              title="Additional case files"
+            />
+
+            <div className="mt-8 grid gap-10 md:grid-cols-2">
+              {otherProjects.map((project, index) => (
+                <article key={project.title} className="flex flex-col border-t-2 border-emerald-500 pt-5">
+                  <div className="flex items-start justify-between gap-5">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+                        Case File {String(index + 2).padStart(2, '0')}
+                      </p>
+                      <h3 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950">
+                        {project.title}
+                      </h3>
+                    </div>
+                    {project.year ? (
+                      <span className="text-sm font-semibold tabular-nums text-slate-500">
+                        {project.year}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <p className="mt-4 flex-1 text-base leading-7 text-slate-600">
+                    {project.summary}
+                  </p>
+
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {[project.type, project.status, ...(project.tags ?? [])]
+                      .filter(Boolean)
+                      .map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                  </div>
+
+                  <div className="mt-6 border-t border-slate-200 pt-5">
+                    <ProjectLinks project={project} />
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        </Reveal>
+      ) : null}
+    </div>
+  );
 }
 
 export default ProjectsPage;

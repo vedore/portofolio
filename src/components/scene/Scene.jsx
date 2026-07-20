@@ -22,7 +22,6 @@ function Scene({ progress, isMobile, scopeProgress = 0, chamberTheme = 'warm' })
     1,
     Math.max(0, (scopeProgress - SCOPE_ACTIVATION_START) / SCOPE_ACTIVATION_RANGE),
   );
-  const shouldUnmountScene = !ENABLE_DEV_CONTROLS && scopeFade >= 1;
 
   useEffect(() => {
     const canvas = document.createElement('canvas');
@@ -38,14 +37,13 @@ function Scene({ progress, isMobile, scopeProgress = 0, chamberTheme = 'warm' })
     return <div className="fixed inset-0 z-0 bg-[radial-gradient(circle_at_top,_#d8f0ff,_#eef6fc_32%,_#ffffff_72%)]" />;
   }
 
-  if (shouldUnmountScene) {
-    return null;
-  }
-
   return (
     <div
       className={`fixed inset-0 z-0 transition-opacity duration-300 ${ENABLE_DEV_CONTROLS ? 'pointer-events-auto' : 'pointer-events-none'}`}
-      style={{ opacity: 1 - scopeFade }}
+      style={{
+        opacity: 1 - scopeFade,
+        visibility: !ENABLE_DEV_CONTROLS && scopeFade >= 1 ? 'hidden' : 'visible',
+      }}
     >
       <Canvas
         shadows={ENABLE_SHADOWS}

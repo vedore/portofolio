@@ -12,7 +12,7 @@ export function useScrollNavigation({
   scrollContainerRef,
   sections,
 }) {
-  const animateScrollTo = useCallback((targetScrollY) => {
+  const animateScrollTo = useCallback((targetScrollY, durationOverride) => {
     const container = scrollContainerRef.current;
 
     if (!container) {
@@ -25,7 +25,7 @@ export function useScrollNavigation({
 
     const startScrollY = container.scrollTop;
     const distance = targetScrollY - startScrollY;
-    const duration = clamp(Math.abs(distance) * 0.75, 900, 2200);
+    const duration = durationOverride ?? clamp(Math.abs(distance) * 0.75, 900, 2200);
     const startTime = performance.now();
 
     const tick = (time) => {
@@ -58,7 +58,7 @@ export function useScrollNavigation({
   }, [animateScrollTo, scopeEndVh, scopeStartVh, scrollContainerRef, sections]);
 
   const scrollToStart = useCallback(() => {
-    animateScrollTo(0);
+    animateScrollTo(0, 900);
   }, [animateScrollTo]);
 
   const scrollToHeroProgress = useCallback((targetProgress) => {

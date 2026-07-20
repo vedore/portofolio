@@ -2,6 +2,7 @@ import { Text } from '@react-three/drei';
 import { useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import { ThemedStandardMaterial } from './ThemeTransition.jsx';
 
 const vertexShader = `
   uniform float uTime;
@@ -67,9 +68,6 @@ function useCodeMaterial() {
 function WaterfallPlane({ isActive = true, themeMode = 'warm' }) {
   const invalidate = useThree((state) => state.invalidate);
   const material = useCodeMaterial();
-  const isCold = themeMode === 'cold';
-  const panelColor = isCold ? '#07151d' : '#14251f';
-  const frameColor = isCold ? '#5a7078' : '#8b7654';
 
   useFrame((state) => {
     if (!isActive) return;
@@ -82,7 +80,13 @@ function WaterfallPlane({ isActive = true, themeMode = 'warm' }) {
     <group position={[-27, 1.7, 0]} rotation={[0, Math.PI / 2, 0]}>
       <mesh position={[0, 0.2, -0.34]} renderOrder={-7}>
         <planeGeometry args={[22, 10]} />
-        <meshStandardMaterial color={panelColor} roughness={0.82} metalness={0.08} />
+        <ThemedStandardMaterial
+          themeMode={themeMode}
+          warmColor="#14251f"
+          coldColor="#07151d"
+          roughness={0.82}
+          metalness={0.08}
+        />
       </mesh>
 
       <mesh position={[0, 0.2, -0.22]} renderOrder={-6}>
@@ -92,11 +96,23 @@ function WaterfallPlane({ isActive = true, themeMode = 'warm' }) {
 
       <mesh position={[0, 4.35, -0.12]} renderOrder={-5}>
         <boxGeometry args={[18.8, 0.16, 0.16]} />
-        <meshStandardMaterial color={frameColor} roughness={0.62} metalness={0.12} />
+        <ThemedStandardMaterial
+          themeMode={themeMode}
+          warmColor="#8b7654"
+          coldColor="#5a7078"
+          roughness={0.62}
+          metalness={0.12}
+        />
       </mesh>
       <mesh position={[0, -3.95, -0.12]} renderOrder={-5}>
         <boxGeometry args={[18.8, 0.16, 0.16]} />
-        <meshStandardMaterial color={frameColor} roughness={0.62} metalness={0.12} />
+        <ThemedStandardMaterial
+          themeMode={themeMode}
+          warmColor="#8b7654"
+          coldColor="#5a7078"
+          roughness={0.62}
+          metalness={0.12}
+        />
       </mesh>
 
       {CODE_LINES.map((line, index) => (

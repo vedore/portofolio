@@ -1,27 +1,58 @@
-function Lights({ enableShadows = false, themeMode = 'warm' }) {
-  const isCold = themeMode === 'cold';
+import { ThemedLight } from './ThemeTransition.jsx';
 
+function Lights({ enableShadows = false, themeMode = 'warm' }) {
   return (
     <>
-      <ambientLight intensity={isCold ? 1.25 : 1.1} color={isCold ? '#eef8ff' : '#fff1d6'} />
-      <directionalLight
+      <ThemedLight
+        type="ambientLight"
+        themeMode={themeMode}
+        warmIntensity={1.1}
+        coldIntensity={1.25}
+        warmColor="#fff1d6"
+        coldColor="#eef8ff"
+      />
+      <ThemedLight
+        type="directionalLight"
+        themeMode={themeMode}
         position={[4, 8, 6]}
-        intensity={isCold ? 1.45 : 1.28}
-        color={isCold ? '#e5f4ff' : '#ffe0aa'}
+        warmIntensity={1.28}
+        coldIntensity={1.45}
+        warmColor="#ffe0aa"
+        coldColor="#e5f4ff"
         castShadow={enableShadows}
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
-      <directionalLight
+      <ThemedLight
+        type="directionalLight"
+        themeMode={themeMode}
         position={[-3, 5.5, 2.2]}
-        intensity={isCold ? 0.92 : 1.22}
-        color={isCold ? '#b8e7ff' : '#ffbd73'}
+        warmIntensity={1.22}
+        coldIntensity={0.92}
+        warmColor="#ffbd73"
+        coldColor="#b8e7ff"
         castShadow={enableShadows}
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
-      <pointLight position={[-4, 2.2, 4]} intensity={isCold ? 0.78 : 0.52} color={isCold ? '#7dc7ff' : '#ffc36e'} />
-      <pointLight position={[2, 1.5, -2]} intensity={isCold ? 0.55 : 0.36} color={isCold ? '#dff4ff' : '#ffe4b5'} />
+      <ThemedLight
+        type="pointLight"
+        themeMode={themeMode}
+        position={[-4, 2.2, 4]}
+        warmIntensity={0.52}
+        coldIntensity={0.78}
+        warmColor="#ffc36e"
+        coldColor="#7dc7ff"
+      />
+      <ThemedLight
+        type="pointLight"
+        themeMode={themeMode}
+        position={[2, 1.5, -2]}
+        warmIntensity={0.36}
+        coldIntensity={0.55}
+        warmColor="#ffe4b5"
+        coldColor="#dff4ff"
+      />
     </>
   );
 }

@@ -6,35 +6,67 @@ export const sections = [
     layout: 'about',
 
     name: 'João Vedor',
-    role: 'Software Developer · Bioinformatics Enthusiast',
+    role: 'Software Developer · Bioinformatics & Biomedical NLP',
     photo: '/images/1766444787358.jpeg',
+    cvHref: '/documents/Joao_Vedor_CV.pdf',
 
     text: 'A closer look at my background in software development, database systems, and bioinformatics.',
 
-    heading: 'A developer shaped by curiosity, systems, and scientific thinking.',
+    heading: 'Building useful software where systems, data, and biomedical NLP meet.',
 
     detailHeader: 'Made in Portugal',
 
     detailIntro:
-      'I am a software developer shaped by curiosity: how systems work, how data is structured, and how interfaces can make complex ideas easier to understand. My path connects Computer Engineering, full stack development, database infrastructure, and a growing specialization in Bioinformatics.',
+      'Computer Engineer with a Master’s specialization in Bioinformatics and experience across full-stack development, databases, DevOps, and biomedical entity linking.',
 
     quickFacts: [
       {
-        label: 'Origin',
-        value: 'Computer Engineering · FCUL',
+        label: 'Location',
+        value: 'Lisbon, Portugal',
       },
       {
-        label: 'Direction',
-        value: 'Software Systems · Bioinformatics',
+        label: 'Education',
+        value: 'MSc Computer Engineering · Bioinformatics',
+      },
+    ],
+
+    experience: [
+      {
+        role: 'Full-Stack Developer',
+        organization: 'Câmara Municipal de Lisboa',
+        summary: 'Internal applications, databases, Azure DevOps pipelines, deployment, and support.',
+      },
+      {
+        role: 'IT Specialist Intern',
+        organization: 'Câmara Municipal de Lisboa',
+        summary: 'Full-stack applications, SQL workflows, deployment, maintenance, and troubleshooting.',
+      },
+      {
+        role: 'Full-Stack Developer',
+        organization: 'Inboxsyz Sistemas de Informação',
+        summary: 'Node.js and React development, backend integration, GitHub, and Vercel.',
+      },
+    ],
+
+    education: [
+      {
+        degree: 'Master’s Degree in Computer Engineering',
+        institution: 'Faculty of Sciences, University of Lisbon',
+        detail: 'Specialization in Bioinformatics',
+        thesis: 'Semantic Indexing of Descriptors, Partitioning and Classification for Mapping Biomedical Entities',
+      },
+      {
+        degree: 'Bachelor’s Degree in Computer Engineering',
+        institution: 'Faculty of Sciences, University of Lisbon',
       },
     ],
 
     highlights: [
-      'Software Development',
+      'Full-Stack Development',
       'Bioinformatics',
-      'Database Infrastructure',
-      'Full Stack Applications',
-      'Research-Driven Thinking',
+      'Biomedical NLP',
+      'Database Systems',
+      'Azure DevOps',
     ],
 
     focusSteps: [
@@ -76,9 +108,49 @@ export const sections = [
     text: 'Selected builds, experiments, and case studies presented as focused observations inside the scope view.',
 
     detailIntro:
-      'This page collects the experiments, prototypes, and complete builds that best show how I think through a problem from concept to execution.',
+      'A selection of experiments, prototypes, and complete builds that show how I take a problem from concept to implementation.',
 
     projects: [
+      {
+        title: 'Bioinformatics Studies - XMR4EL',
+        type: 'Academic / Research Work',
+        status: 'Research',
+        year: '2026',
+        summary:
+          'Master’s thesis work on semantic indexing, descriptor partitioning, and classification for biomedical entity linking.',
+        tags: ['Biomedical NLP', 'Entity Linking', 'Ontologies', 'Research'],
+        links: [
+          {
+            label: 'Thesis Document',
+            description: 'Research PDF',
+            href: 'https://repositorio.ulisboa.pt/entities/publication/5ab3ea28-7a85-40de-91be-dc3afbae1d81',
+            kind: 'document',
+          },
+          {
+            label: 'Source Repository',
+            description: 'GitHub Archive',
+            href: 'https://github.com/lasigeBioTM/XMR4EL',
+            kind: 'github',
+          },
+        ],
+      },
+      {
+        title: 'Sample2Report',
+        type: 'CLI toolkit',
+        status: 'In Progress',
+        year: '2026',
+        summary:
+          'CLI toolkit that turns common bioinformatics inputs such as FASTA files, sample metadata, count matrices, and gene lists into reproducible analysis reports with validation, summary statistics, plots, and exportable results.',
+        tags: ['CLI', 'Python', 'Tooling'],
+        links: [
+          {
+            label: 'Source Repository',
+            description: 'Github Archive',
+            href: 'https://github.com/vedore/sample2report.git',
+            kind: 'github'
+          }
+        ]
+      },
       {
         title: 'Microscope Portfolio',
         type: 'Interactive Portfolio',
@@ -113,29 +185,6 @@ export const sections = [
           },
         ],
       },
-      {
-        title: 'Bioinformatics Studies - XMR4EL',
-        type: 'Academic / Research Work',
-        status: 'Research',
-        year: '2026',
-        summary:
-          'Projects and studies connected to biological data, structured analysis, and the intersection between software engineering and scientific systems.',
-        tags: ['Bioinformatics', 'Data', 'Research', 'Systems'],
-        links: [
-          {
-            label: 'Thesis Document',
-            description: 'Research PDF',
-            href: 'https://repositorio.ulisboa.pt/entities/publication/5ab3ea28-7a85-40de-91be-dc3afbae1d81',
-            kind: 'document',
-          },
-          {
-            label: 'Source Repository',
-            description: 'GitHub Archive',
-            href: 'https://github.com/lasigeBioTM/XMR4EL',
-            kind: 'github',
-          },
-        ],
-      },
     ],
 
     detailBlocks: [
@@ -158,7 +207,7 @@ export const sections = [
     text: 'Tooling, prototyping, software, and craft distilled into a focused technical inventory.',
 
     detailIntro:
-      'This section breaks down the tools, languages, frameworks, and practices I rely on when turning an idea into something usable, readable, and technically solid.',
+      'The tools, languages, frameworks, and practices I use to turn ideas into software that is usable, readable, and technically solid.',
 
     skillGroups: [
       {
@@ -186,6 +235,7 @@ export const sections = [
           'Authentication',
           'Turnstile',
           'JWT Sessions',
+          'Azure DevOps',
           'Docker',
           'Linux',
         ],
@@ -195,16 +245,19 @@ export const sections = [
         note: 'Structured data, querying, persistence, and system organization.',
         skills: [
           'SQL',
+          'NoSQL',
           'Oracle',
           'Database Design',
           'Data Modeling',
           'Query Optimization',
+          'Ontologies',
+          'Knowledge Bases',
           'Bioinformatics Data',
         ],
       },
       {
         heading: 'Data Engineering',
-        note: 'Move, Analyse, Work Data',
+        note: 'Data preparation, analysis, and machine-learning workflows.',
         skills: [
           'Python',
           'PyTorch',
@@ -212,6 +265,8 @@ export const sections = [
           'Hugging Face',
           'Transformers',
           'LLMs',
+          'Biomedical NLP',
+          'Entity Linking',
         ],
       },
     ],
@@ -255,13 +310,13 @@ export const sections = [
     text: 'Email, links, and collaboration details revealed as the final field of view inside the lens.',
 
     detailIntro:
-      'This page is the direct route for conversations, collaborations, project inquiries, or simply continuing the discussion around the work shown in the scope.',
+      'A direct route for project inquiries, collaborations, and conversations about the work shown in the scope.',
 
     contactMethods: [
       {
         label: 'Email',
-        value: 'joao.vedor.email@goggle.com',
-        href: 'mailto:joao.vedor.email@gmail.com',
+        value: 'jpvedor123@gmail.com',
+        href: 'mailto:jpvedor123@gmail.com',
         description: 'For project inquiries, collaborations, or direct conversations.',
         kind: 'primary',
       },
@@ -274,7 +329,7 @@ export const sections = [
       },
       {
         label: 'LinkedIn',
-        value: 'linkedin.com/in/your-profile',
+        value: 'linkedin.com/in/joão-vedor-7059b8286',
         href: 'https://www.linkedin.com/in/joão-vedor-7059b8286/',
         description: 'Professional profile and academic background.',
         kind: 'secondary',

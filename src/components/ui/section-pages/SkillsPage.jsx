@@ -1,216 +1,107 @@
-function SkillsPage({ section }) {
-  const label = section.label ?? "Specimen 03";
-  const title = section.title ?? "Skills";
+import { DetailHero, Reveal, SectionHeading } from './DetailPageElements.jsx';
 
+function SkillsPage({ section }) {
   const intro =
     section.detailIntro ??
     section.text ??
-    "Tooling, prototyping, software, and craft distilled into a focused technical inventory.";
-
-  const skillGroups = section.skillGroups ?? [
-    {
-      heading: "Frontend Systems",
-      note: "Interfaces, component structure, styling, and interaction.",
-      skills: [
-        "React",
-        "Vue",
-        "Vite",
-        "Tailwind CSS",
-        "SCSS",
-        "JavaScript",
-        "TypeScript",
-        "Responsive UI",
-      ],
-    },
-    {
-      heading: "Backend and Infrastructure",
-      note: "APIs, authentication, databases, and deployment logic.",
-      skills: [
-        "Node.js",
-        "Cloudflare Workers",
-        "REST APIs",
-        "Authentication",
-        "Turnstile",
-        "JWT Sessions",
-        "Docker",
-        "Linux",
-      ],
-    },
-    {
-      heading: "Data and Databases",
-      note: "Structured data, querying, persistence, and system organization.",
-      skills: [
-        "SQL",
-        "Oracle",
-        "Database Design",
-        "Data Modeling",
-        "Query Optimization",
-        "Bioinformatics Data",
-      ],
-    },
-    {
-      heading: "Creative Development",
-      note: "Visual systems, motion, spatial interfaces, and prototypes.",
-      skills: [
-        "Three.js",
-        "Blender",
-        "Motion Design",
-        "Interactive Prototypes",
-        "Visual Systems",
-        "Portfolio Experiments",
-      ],
-    },
-  ];
-
-  const workflow = section.workflow ?? [
-    {
-      title: "Prototype",
-      text: "I test ideas early through layouts, small interactions, and technical experiments.",
-    },
-    {
-      title: "Structure",
-      text: "I organize components, data, and interfaces so the project can grow without becoming fragile.",
-    },
-    {
-      title: "Polish",
-      text: "I refine motion, spacing, accessibility, and edge cases until the experience feels stable.",
-    },
-  ];
-
-  const detailBlocks = section.detailBlocks ?? [];
-
-  const textHighlight =
-    "box-decoration-clone rounded-xl bg-emerald-100/80 px-2 py-1 text-black shadow-[inset_0_-0.45em_0_rgba(110,231,183,0.45)]";
+    'Tools and practices used to build readable, stable software.';
+  const skillGroups = section.skillGroups ?? [];
+  const workflow = section.workflow ?? [];
+  const skillCount = skillGroups.reduce((total, group) => total + (group.skills?.length ?? 0), 0);
 
   return (
-    <div className="grid gap-8 py-8">
-      <section className="grid gap-6 rounded-[2rem] border border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(167,243,208,0.35),transparent_34%),linear-gradient(to_bottom,#f8fafc,#f1f5f9)] px-6 py-7 shadow-[0_12px_40px_rgba(15,23,42,0.06)] md:grid-cols-[1.1fr_0.9fr] md:items-end">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-            {label}
-          </p>
-
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-black md:text-5xl">
-            <span className={textHighlight}>{title}</span>
-          </h2>
-
-          <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-700 md:text-base">
-            {intro}
-          </p>
-        </div>
-
-        <div className="rounded-[1.75rem] border border-emerald-100 bg-white/80 px-5 py-5 shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
-          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-slate-400">
-            Inventory Status
-          </p>
-
-          <p className="mt-3 text-xl font-semibold tracking-tight text-black">
-            Tools grouped by how I use them.
-          </p>
-
-          <p className="mt-3 text-sm leading-7 text-slate-600">
-            Rather than a plain list, this section organizes skills as
-            practical instruments: interface work, systems, data, and creative
-            development.
-          </p>
-        </div>
-      </section>
-
-      <section className="grid gap-5 md:grid-cols-2">
-        {skillGroups.map((group, index) => (
-          <article
-            key={group.heading}
-            className="group rounded-[2rem] border border-slate-200 bg-white px-6 py-7 shadow-[0_12px_40px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)]"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-emerald-700">
-                  Instrument Set {String(index + 1).padStart(2, "0")}
-                </p>
-
-                <h3 className="mt-4 text-xl font-semibold tracking-tight text-black">
-                  {group.heading}
-                </h3>
-              </div>
-
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-900 shadow-sm">
-                {String(index + 1).padStart(2, "0")}
-              </span>
+    <div className="space-y-16 pb-16">
+      <DetailHero
+        kicker="Technical inventory / Capabilities"
+        title="Tools organized around the work they enable."
+        description={intro}
+        aside={(
+          <dl className="grid grid-cols-2 gap-5">
+            <div>
+              <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                Capability areas
+              </dt>
+              <dd className="mt-2 text-3xl font-semibold text-white">
+                {skillGroups.length}
+              </dd>
             </div>
+            <div>
+              <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                Instruments
+              </dt>
+              <dd className="mt-2 text-3xl font-semibold text-white">{skillCount}</dd>
+            </div>
+          </dl>
+        )}
+      />
 
-            {group.note && (
-              <p className="mt-4 text-sm leading-7 text-slate-600">
-                {group.note}
-              </p>
-            )}
+      <Reveal>
+        <section className="rounded-3xl bg-white px-6 py-8 md:px-8 md:py-10">
+          <SectionHeading
+            eyebrow="Capability map"
+            title="From interface to infrastructure"
+          />
 
-            {group.skills?.length > 0 && (
-              <div className="mt-6 flex flex-wrap gap-2">
-                {group.skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="rounded-full border border-emerald-100 bg-emerald-50/70 px-3 py-1.5 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-emerald-900 transition group-hover:border-emerald-200 group-hover:bg-emerald-50"
-                  >
-                    {skill}
+          <div className="mt-8 grid gap-x-10 gap-y-12 md:grid-cols-2">
+            {skillGroups.map((group, index) => (
+              <article key={group.heading} className="border-t-2 border-emerald-500 pt-5">
+                <div className="flex items-start justify-between gap-5">
+                  <h3 className="text-2xl font-semibold tracking-tight text-slate-950">
+                    {group.heading}
+                  </h3>
+                  <span className="text-sm font-semibold tabular-nums text-emerald-700">
+                    {String(index + 1).padStart(2, '0')}
                   </span>
-                ))}
-              </div>
-            )}
-          </article>
-        ))}
-      </section>
+                </div>
 
-      {workflow.length > 0 && (
-        <section className="rounded-[2rem] border border-slate-200 bg-[radial-gradient(circle_at_top_right,rgba(209,250,229,0.7),transparent_35%),#ffffff] px-6 py-7 shadow-[0_12px_40px_rgba(15,23,42,0.05)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-            Workflow
-          </p>
+                {group.note ? (
+                  <p className="mt-3 max-w-xl text-base leading-7 text-slate-600">
+                    {group.note}
+                  </p>
+                ) : null}
 
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            {workflow.map((step, index) => (
-              <div
-                key={step.title}
-                className="rounded-[1.5rem] border border-emerald-100 bg-emerald-50/70 px-5 py-4 transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50 hover:shadow-[0_12px_30px_rgba(15,23,42,0.06)]"
-              >
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-xs font-bold text-emerald-900 shadow-sm">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-
-                <p className="mt-4 text-sm font-semibold uppercase tracking-[0.22em] text-emerald-900">
-                  {step.title}
-                </p>
-
-                <p className="mt-2 text-sm leading-7 text-slate-700">
-                  {step.text}
-                </p>
-              </div>
+                {group.skills?.length ? (
+                  <ul className="mt-6 flex flex-wrap gap-2" aria-label={`${group.heading} skills`}>
+                    {group.skills.map((skill) => (
+                      <li
+                        key={skill}
+                        className="rounded-full border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700"
+                      >
+                        {skill}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </article>
             ))}
           </div>
         </section>
-      )}
+      </Reveal>
 
-      {detailBlocks.length > 0 && (
-        <section className="grid gap-6 md:grid-cols-3">
-          {detailBlocks.map((block) => (
-            <article
-              key={block.heading}
-              className="rounded-[2rem] border border-slate-200 bg-white px-6 py-7 shadow-[0_12px_40px_rgba(15,23,42,0.05)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_45px_rgba(15,23,42,0.08)]"
-            >
-              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-emerald-700">
-                Field Note
-              </p>
+      {workflow.length > 0 ? (
+        <Reveal>
+          <section className="overflow-hidden rounded-3xl bg-emerald-950 px-6 py-9 text-white md:px-9 md:py-11">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-300">
+              Working method
+            </p>
+            <h2 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight md:text-4xl">
+              A simple process for turning uncertain ideas into stable work.
+            </h2>
 
-              <h3 className="mt-3 text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">
-                {block.heading}
-              </h3>
-
-              <p className="mt-4 text-sm leading-7 text-slate-700">
-                {block.text}
-              </p>
-            </article>
-          ))}
-        </section>
-      )}
+            <ol className="mt-9 grid gap-7 border-t border-white/15 pt-7 md:grid-cols-3">
+              {workflow.map((step, index) => (
+                <li key={step.title} className="md:border-l md:border-white/15 md:pl-6 md:first:border-l-0 md:first:pl-0">
+                  <span className="text-sm font-semibold tabular-nums text-emerald-300">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <h3 className="mt-4 text-xl font-semibold tracking-tight">{step.title}</h3>
+                  <p className="mt-3 text-base leading-7 text-emerald-50/75">{step.text}</p>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </Reveal>
+      ) : null}
     </div>
   );
 }

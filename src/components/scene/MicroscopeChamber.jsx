@@ -1,3 +1,5 @@
+import { ThemedStandardMaterial } from './ThemeTransition.jsx';
+
 const CHAMBER_SIZE = {
   width: 40,
   height: 20,
@@ -198,11 +200,6 @@ function LabBench() {
 }
 
 function MicroscopeChamber({ themeMode = 'warm' }) {
-  const isCold = themeMode === 'cold';
-  const wallColor = isCold ? '#d9e2e4' : '#cfc8b8';
-  const leftWallColor = isCold ? '#c3d0d2' : '#b9aa8d';
-  const floorColor = isCold ? '#aebcc0' : '#aaa594';
-
   return (
     <group position={[0, 0.6, 0]}>
       {WALLS.map((wall) => (
@@ -213,7 +210,13 @@ function MicroscopeChamber({ themeMode = 'warm' }) {
           renderOrder={-3}
         >
           <planeGeometry args={wall.args} />
-          <meshStandardMaterial color={wall.id === 'floor' ? floorColor : wallColor} roughness={0.86} metalness={0.02} />
+          <ThemedStandardMaterial
+            themeMode={themeMode}
+            warmColor={wall.id === 'floor' ? '#aaa594' : '#cfc8b8'}
+            coldColor={wall.id === 'floor' ? '#aebcc0' : '#d9e2e4'}
+            roughness={0.86}
+            metalness={0.02}
+          />
         </mesh>
       ))}
 
@@ -225,14 +228,26 @@ function MicroscopeChamber({ themeMode = 'warm' }) {
           renderOrder={-3}
         >
           <planeGeometry args={panel.args} />
-          <meshStandardMaterial color={leftWallColor} roughness={0.88} metalness={0.02} />
+          <ThemedStandardMaterial
+            themeMode={themeMode}
+            warmColor="#b9aa8d"
+            coldColor="#c3d0d2"
+            roughness={0.88}
+            metalness={0.02}
+          />
         </mesh>
       ))}
 
       {WINDOW_FRAME.map((piece) => (
         <mesh key={piece.id} position={piece.position} scale={piece.scale} receiveShadow>
           <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color={isCold ? '#e9f3f2' : '#f2e5c9'} roughness={0.52} metalness={0.08} />
+          <ThemedStandardMaterial
+            themeMode={themeMode}
+            warmColor="#f2e5c9"
+            coldColor="#e9f3f2"
+            roughness={0.52}
+            metalness={0.08}
+          />
         </mesh>
       ))}
 

@@ -44,9 +44,6 @@ function SectionPage({
   isNavigating = false,
   transitionMs = 520,
 }) {
-  const textHighlight =
-    "box-decoration-clone rounded-xl bg-emerald-100/80 px-2 py-1 text-black shadow-[inset_0_-0.45em_0_rgba(110,231,183,0.45)]";
-
   const whiteWashDuration = Math.round(transitionMs * 1.2);
   const contentDelay = Math.round(transitionMs * 0.4);
   const contentTransitionDuration = Math.round(transitionMs * 0.42);
@@ -102,31 +99,24 @@ function SectionPage({
       )}
 
       <div
-        className="relative z-10 h-full overflow-y-auto"
+        className="relative z-10 h-full overflow-y-auto bg-[#f1f4f0]"
         style={{
           contentVisibility: isOpen ? 'visible' : 'hidden',
           opacity: isOpen ? 1 : 0,
           transition: `opacity ${contentTransitionDuration}ms ease ${isOpen ? contentDelay : 0}ms`,
         }}
       >
-        <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col px-6 py-8 md:px-10 md:py-10">
-          <div className="flex items-start justify-between gap-6 border-b border-slate-200 pb-6">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.34em] text-slate-400">
-                <span className={textHighlight}>{section.label}</span>
-              </p>
-              <h1 className="mt-4 text-4xl font-semibold tracking-tight text-black md:text-6xl ">
-                {section.title}
-              </h1>
-              <p className="mt-5 w-full text-base leading-8 text-slate-600 md:text-lg">
-                {section.detailHeader ?? section.text}
-              </p>
-            </div>
-
+        <div className="mx-auto flex min-h-full w-full max-w-6xl flex-col px-6 md:px-10">
+          <div className="sticky top-0 z-20 -mx-6 flex items-center justify-between gap-6 border-b border-slate-300 bg-white px-6 py-4 md:-mx-10 md:px-10">
+            <p className="min-w-0 truncate text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+              <span className="text-emerald-700">{section.label}</span>
+              <span className="mx-3 text-slate-300" aria-hidden="true">/</span>
+              <span>{section.title}</span>
+            </p>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium tracking-[0.08em] text-slate-700 transition-colors hover:border-slate-900 hover:text-black"
+              className="shrink-0 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium tracking-[0.06em] text-slate-700 transition-colors hover:border-slate-900 hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
             >
               Close
             </button>
