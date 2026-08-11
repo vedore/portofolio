@@ -10,7 +10,6 @@ import {
   HERO_ANIMATION_END,
   HERO_ANIMATION_START,
   HERO_SCROLL_HEIGHT,
-  HERO_STICKY_START_OFFSET,
   SCOPE_ACTIVATION_START,
   SECTION_PAGE_TRANSITION_MS,
 } from './config/scopeTiming.js';
@@ -230,35 +229,34 @@ function App() {
 
       <main className={`relative z-20 ${ENABLE_DEV_CONTROLS ? 'pointer-events-none' : ''}`}>
         <section
-          className="relative overflow-hidden px-6"
+          className="relative overflow-hidden px-4 sm:px-6"
           style={{ height: `calc(var(--app-height) * ${HERO_SCROLL_HEIGHT / 100})` }}
         >
-          <div style={{ height: `calc(var(--app-height) * ${HERO_STICKY_START_OFFSET / 100})` }} />
           <div className="sticky top-0 w-full" style={{ minHeight: 'var(--app-height)' }}>
             <div
-              className="mx-auto flex w-full max-w-6xl flex-col justify-start gap-6 py-16"
+              className="mx-auto flex w-full max-w-6xl flex-col justify-center gap-4 py-4 sm:py-6 lg:py-10"
               style={{ minHeight: 'var(--app-height)' }}
             >
               <div
-                className="max-w-2xl rounded-3xl border border-white/50 bg-white/55 p-8 shadow-md shadow-sky-100/35 transition-opacity duration-300"
+                className="max-h-[calc(var(--app-height)-2rem)] max-w-xl overflow-y-auto rounded-2xl border border-white/50 bg-white/55 p-5 shadow-md shadow-sky-100/35 transition-opacity duration-300 sm:rounded-3xl sm:p-6 lg:p-8"
                 style={{ opacity: heroCardOpacity }}
               >
-                <p className="mb-4 text-sm font-medium uppercase tracking-[0.28em] text-lab-deep/70">
+                <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-lab-deep/70 sm:text-sm">
                   João Vedor / Portfolio
                 </p>
-                <h1 className="text-4xl font-semibold tracking-tight text-slate-950 md:text-6xl">
+                <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl xl:text-6xl">
                   Bioinformatics &amp; Biomedical NLP Developer.
                 </h1>
-                <p className="mt-4 max-w-lg text-base leading-7 text-slate-700 md:text-lg">
+                <p className="mt-3 max-w-lg text-sm leading-6 text-slate-700 sm:text-base sm:leading-7">
                   I build software, data systems, and biomedical NLP tooling that turn complex
                   information into useful, maintainable products.
                 </p>
 
-                <div className="mt-7 flex flex-wrap gap-3" aria-label="Portfolio actions">
+                <div className="mt-5 flex flex-wrap gap-2.5" aria-label="Portfolio actions">
                   <button
                     type="button"
                     onClick={() => navigateToSection('projects')}
-                    className="rounded-full bg-emerald-800 px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+                    className="rounded-full bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
                   >
                     View selected work
                   </button>
@@ -267,7 +265,7 @@ function App() {
                       href={aboutSection.cvHref}
                       target="_blank"
                       rel="noreferrer"
-                      className="rounded-full border border-slate-300 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-emerald-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+                      className="rounded-full border border-slate-300 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-emerald-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
                     >
                       Download CV <span aria-hidden="true">↗</span>
                     </a>
@@ -277,14 +275,14 @@ function App() {
                       href={githubContact.href}
                       target="_blank"
                       rel="noreferrer"
-                      className="rounded-full border border-slate-300 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-emerald-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+                      className="rounded-full border border-slate-300 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-emerald-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
                     >
                       GitHub <span aria-hidden="true">↗</span>
                     </a>
                   ) : null}
                 </div>
 
-                <nav className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-emerald-900" aria-label="Portfolio sections">
+                <nav className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-emerald-900" aria-label="Portfolio sections">
                   <button type="button" onClick={() => navigateToSection('about')} className="underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
                     About
                   </button>
@@ -309,7 +307,7 @@ function App() {
                   ) : null}
                 </nav>
 
-                <div className="mt-6 flex items-center gap-3 border-t border-slate-900/10 pt-5">
+                <div className="mt-5 flex items-center gap-3 border-t border-slate-900/10 pt-4">
                   <span
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-800 text-lg text-white"
                     aria-hidden="true"
