@@ -232,12 +232,12 @@ function App() {
 
       <main className={`relative z-20 ${ENABLE_DEV_CONTROLS ? 'pointer-events-none' : ''}`}>
         <section
-          className="relative overflow-hidden px-4 sm:px-6"
+          className="relative overflow-hidden"
           style={{ height: `calc(var(--app-height) * ${HERO_SCROLL_HEIGHT / 100})` }}
         >
           <div className="sticky top-0 w-full" style={{ minHeight: 'var(--app-height)' }}>
             <div
-              className="mx-auto flex w-full max-w-6xl flex-col justify-center gap-4 py-4 sm:py-6 lg:py-10"
+              className="flex w-full flex-col justify-center"
               style={{ minHeight: 'var(--app-height)' }}
             >
               <div style={{ opacity: heroCardOpacity }}>
