@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AboutPage from './section-pages/AboutPage';
 import ProjectsPage from './section-pages/ProjectsPage'
 import SkillsPage from './section-pages/SkillsPage';
@@ -48,6 +48,7 @@ function SectionPage({
   const contentDelay = Math.round(transitionMs * 0.4);
   const contentTransitionDuration = Math.round(transitionMs * 0.42);
   const [isWhiteWashVisible, setIsWhiteWashVisible] = useState(true);
+  const closeButtonRef = useRef(null);
 
   useEffect(() => {
     if (!section) {
@@ -66,6 +67,27 @@ function SectionPage({
     };
   }, [isOpen, section, whiteWashDuration]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined;
+    }
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!section) {
     return null;
   }
@@ -74,6 +96,9 @@ function SectionPage({
     <div
       className={`fixed inset-0 z-50 ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
       aria-hidden={!isOpen}
+      aria-label={`${section.title} details`}
+      aria-modal="true"
+      role="dialog"
     >
       <div
         className="absolute inset-0 bg-white"
@@ -116,6 +141,7 @@ function SectionPage({
             <button
               type="button"
               onClick={onClose}
+              ref={closeButtonRef}
               className="shrink-0 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium tracking-[0.06em] text-slate-700 transition-colors hover:border-slate-900 hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
             >
               Close

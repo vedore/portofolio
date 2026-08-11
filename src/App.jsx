@@ -22,6 +22,10 @@ import { getInteractiveElement } from './utils/dom.js';
 const SectionPage = lazy(() => import('./components/ui/SectionPage'));
 
 const ENABLE_DEV_CONTROLS = import.meta.env.VITE_ENABLE_ORBIT === 'true';
+const aboutSection = sections.find((section) => section.id === 'about');
+const contactSection = sections.find((section) => section.id === 'contact');
+const githubContact = contactSection?.contactMethods?.find((method) => method.label === 'GitHub');
+const linkedInContact = contactSection?.contactMethods?.find((method) => method.label === 'LinkedIn');
 
 function App() {
   const [activeSection, setActiveSection] = useState(null);
@@ -138,6 +142,14 @@ function App() {
     }, SECTION_PAGE_TRANSITION_MS);
   }, []);
 
+  const navigateToSection = useCallback((sectionId) => {
+    const phaseIndex = phaseTargets.findIndex((phase) => phase.id === sectionId);
+
+    if (phaseIndex >= 0) {
+      navigateToPhase(phaseIndex);
+    }
+  }, [navigateToPhase, phaseTargets]);
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (isSectionPageOpen || getInteractiveElement(event.target)) {
@@ -200,9 +212,11 @@ function App() {
           <button
             type="button"
             onClick={() => setChamberTheme((theme) => (theme === 'warm' ? 'cold' : 'warm'))}
+            aria-label={`Switch to the ${chamberTheme === 'warm' ? 'cool' : 'warm'} scene`}
+            aria-pressed={chamberTheme === 'warm'}
             className="rounded-full border border-white/60 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-800 shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:text-black"
           >
-            {chamberTheme === 'warm' ? 'Cold' : 'Warm'}
+            Theme: {chamberTheme === 'warm' ? 'Warm' : 'Cool'}
           </button>
         ) : null}
         <button
@@ -226,19 +240,74 @@ function App() {
               style={{ minHeight: 'var(--app-height)' }}
             >
               <div
-                className="max-w-xl rounded-3xl border border-white/50 bg-white/55 p-8 shadow-md shadow-sky-100/35 transition-opacity duration-300"
+                className="max-w-2xl rounded-3xl border border-white/50 bg-white/55 p-8 shadow-md shadow-sky-100/35 transition-opacity duration-300"
                 style={{ opacity: heroCardOpacity }}
               >
                 <p className="mb-4 text-sm font-medium uppercase tracking-[0.28em] text-lab-deep/70">
-                  Scroll-Driven Microscope Portfolio
+                  João Vedor / Portfolio
                 </p>
                 <h1 className="text-4xl font-semibold tracking-tight text-slate-950 md:text-6xl">
-                  A closer look at my work.
+                  Bioinformatics &amp; Biomedical NLP Developer.
                 </h1>
                 <p className="mt-4 max-w-lg text-base leading-7 text-slate-700 md:text-lg">
-                  Enter the lens and move through a layered portfolio built around experiments,
-                  projects, design, code, and the details that shape my work.
+                  I build software, data systems, and biomedical NLP tooling that turn complex
+                  information into useful, maintainable products.
                 </p>
+
+                <div className="mt-7 flex flex-wrap gap-3" aria-label="Portfolio actions">
+                  <button
+                    type="button"
+                    onClick={() => navigateToSection('projects')}
+                    className="rounded-full bg-emerald-800 px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+                  >
+                    View selected work
+                  </button>
+                  {aboutSection?.cvHref ? (
+                    <a
+                      href={aboutSection.cvHref}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-full border border-slate-300 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-emerald-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+                    >
+                      Download CV <span aria-hidden="true">↗</span>
+                    </a>
+                  ) : null}
+                  {githubContact ? (
+                    <a
+                      href={githubContact.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-full border border-slate-300 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-emerald-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+                    >
+                      GitHub <span aria-hidden="true">↗</span>
+                    </a>
+                  ) : null}
+                </div>
+
+                <nav className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-emerald-900" aria-label="Portfolio sections">
+                  <button type="button" onClick={() => navigateToSection('about')} className="underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
+                    About
+                  </button>
+                  <button type="button" onClick={() => navigateToSection('projects')} className="underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
+                    Projects
+                  </button>
+                  <button type="button" onClick={() => navigateToSection('skills')} className="underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
+                    Skills
+                  </button>
+                  <button type="button" onClick={() => navigateToSection('contact')} className="underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
+                    Contact
+                  </button>
+                  {linkedInContact ? (
+                    <a
+                      href={linkedInContact.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+                    >
+                      LinkedIn <span aria-hidden="true">↗</span>
+                    </a>
+                  ) : null}
+                </nav>
 
                 <div className="mt-6 flex items-center gap-3 border-t border-slate-900/10 pt-5">
                   <span
@@ -254,7 +323,7 @@ function App() {
                     <p className="mt-1 text-sm leading-6 text-slate-600">
                       {isMobile
                         ? 'Swipe up to enter the lens, then use the arrows to browse specimens.'
-                        : 'Scroll, or for a more smooth experience, use the arrow keys.'}
+                        : 'Scroll, or use the arrow keys for a smoother experience.'}
                     </p>
                   </div>
                 </div>
