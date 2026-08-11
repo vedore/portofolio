@@ -200,13 +200,15 @@ function App() {
         />
       </Suspense>
       <LoadingScreen />
-      <ScrollMeter
-        activeIndex={currentPhaseIndex}
-        meterPosition={meterPosition}
-        phases={phaseTargets}
-        onScrub={scrubToMeterPosition}
-        onSelectPhase={navigateToPhase}
-      />
+      {heroProgress > 0.01 ? (
+        <ScrollMeter
+          activeIndex={currentPhaseIndex}
+          meterPosition={meterPosition}
+          phases={phaseTargets}
+          onScrub={scrubToMeterPosition}
+          onSelectPhase={navigateToPhase}
+        />
+      ) : null}
       {heroProgress > 0.01 ? (
         <div className="fixed right-5 top-5 z-40 flex gap-2 md:right-8 md:top-8">
         {scopeProgress < SCOPE_ACTIVATION_START ? (
