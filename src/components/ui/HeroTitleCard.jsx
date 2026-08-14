@@ -37,7 +37,7 @@ function HeroTitleCard({
             </text>
           </mask>
         </defs>
-        <rect width="1600" height="900" fill="black" fillOpacity="0.72" mask="url(#hero-title-cutout)" />
+        <rect width="1600" height="900" fill="black" mask="url(#hero-title-cutout)" />
         <text
           x="800"
           y="650"
