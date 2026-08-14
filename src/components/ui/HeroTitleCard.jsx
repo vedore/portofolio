@@ -9,7 +9,7 @@ function HeroTitleCard({
 }) {
   return (
     <section
-      className="relative flex min-h-[var(--app-height)] w-full flex-col overflow-hidden bg-black text-white"
+      className="relative flex min-h-[var(--app-height)] w-full flex-col overflow-hidden text-white"
       data-testid="hero-title-card"
       aria-labelledby="portfolio-title"
     >
@@ -38,22 +38,6 @@ function HeroTitleCard({
           </mask>
         </defs>
         <rect width="1600" height="900" fill="black" mask="url(#hero-title-cutout)" />
-        <text
-          x="800"
-          y="610"
-          textAnchor="middle"
-          textLength="1460"
-          lengthAdjust="spacingAndGlyphs"
-          fill="transparent"
-          stroke="white"
-          strokeOpacity="0.45"
-          strokeWidth="3"
-          fontFamily="Arial Black, Impact, sans-serif"
-          fontSize="610"
-          fontWeight="900"
-        >
-          JOÃO VEDOR
-        </text>
       </svg>
 
       <div className="relative z-10 flex min-h-[var(--app-height)] flex-col px-5 sm:px-8 lg:px-12">
@@ -61,10 +45,6 @@ function HeroTitleCard({
           <span>João Vedor / Portfolio</span>
           <span>2026</span>
         </header>
-
-        <p className="mt-[7vh] text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-white/75 sm:text-xs">
-          Selected work / 01—04
-        </p>
 
         <div className="flex-1" aria-hidden="true" />
 
@@ -74,7 +54,7 @@ function HeroTitleCard({
 
         <div className="border-y border-white/35">
           <div className="grid gap-4 py-3 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-white/80 sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:text-xs">
-            <span>Portfolio navigation</span>
+            <span aria-hidden="true" />
             <span className="hidden sm:block">Scroll to enter</span>
             <span className="text-left sm:text-right">Lisbon, Portugal</span>
           </div>
@@ -166,10 +146,6 @@ function HeroTitleCard({
           </div>
         </div>
 
-        <footer className="flex items-center justify-between gap-4 py-4 text-[0.58rem] font-semibold uppercase tracking-[0.2em] text-white/65 sm:py-5 sm:text-[0.65rem]">
-          <span>Software / Data / Research</span>
-          <span>© João Vedor</span>
-        </footer>
       </div>
     </section>
   );

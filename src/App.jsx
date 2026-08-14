@@ -11,7 +11,6 @@ import {
   HERO_ANIMATION_END,
   HERO_ANIMATION_START,
   HERO_SCROLL_HEIGHT,
-  SCOPE_ACTIVATION_START,
   SECTION_PAGE_TRANSITION_MS,
 } from './config/scopeTiming.js';
 import { useScopeProgress } from './hooks/useScopeProgress';
@@ -211,17 +210,6 @@ function App() {
       ) : null}
       {heroProgress > 0.01 ? (
         <div className="fixed right-5 top-5 z-40 flex gap-2 md:right-8 md:top-8">
-        {scopeProgress < SCOPE_ACTIVATION_START ? (
-          <button
-            type="button"
-            onClick={() => setChamberTheme((theme) => (theme === 'warm' ? 'cold' : 'warm'))}
-            aria-label={`Switch to the ${chamberTheme === 'warm' ? 'cool' : 'warm'} scene`}
-            aria-pressed={chamberTheme === 'warm'}
-            className="rounded-full border border-white/60 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-800 shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:text-black"
-          >
-            Theme: {chamberTheme === 'warm' ? 'Warm' : 'Cool'}
-          </button>
-        ) : null}
         <button
           type="button"
           onClick={scrollToStart}
