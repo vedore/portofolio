@@ -62,10 +62,11 @@ src/
       Environment.jsx, SunBeam.jsx,
       WavePlane.jsx                     # currently not rendered by Scene.jsx
     ui/
-      HeroTitleCard.jsx                 # loading-aware landing card and direct navigation
+      HeroTitleCard.jsx                 # landing card, direct navigation, theme toggle
       LensTransition.jsx                # transition from scene to scope
       ScopeView.jsx                     # circular section carousel
       ScrollMeter.jsx                   # phase controls, shown after scrolling begins
+      LoadingScreen.jsx                 # Drei asset-loading overlay
       SectionPage.jsx                   # lazy-loaded accessible detail modal
       section-pages/                    # About, Projects, Skills, Contact layouts
 public/
@@ -89,13 +90,10 @@ public/
 5. `ScrollCamera` interpolates through the configured start, mid, end, and
    scope-entry positions. `LensTransition` and `ScopeView` take over near the
    scope entry.
-6. `HeroTitleCard` uses Drei loading progress. Its black cutout title is the
-   loading view; shortcuts require both a fully loaded scene and the first
-   scroll/swipe gesture.
-7. Scope cards are built from `ScopeViewSections.data.js`. Arrow buttons,
+6. Scope cards are built from `ScopeViewSections.data.js`. Arrow buttons,
    keyboard navigation, the hero links, and the scroll meter all use the same
    phase/progress calculations.
-8. Opening a card lazily loads `SectionPage`, which renders the layout named by
+7. Opening a card lazily loads `SectionPage`, which renders the layout named by
    `section.layout` (`about`, `projects`, `skills`, or `contact`). Escape and
    the Close button dismiss the modal.
 

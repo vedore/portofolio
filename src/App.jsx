@@ -2,6 +2,7 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import Scene from './components/scene/Scene';
 import LensTransition from './components/ui/LensTransition';
 import ScopeView from './components/ui/ScopeView';
+import LoadingScreen from './components/ui/LoadingScreen';
 import ScrollMeter from './components/ui/ScrollMeter';
 import HeroTitleCard from './components/ui/HeroTitleCard';
 import { Analytics } from '@vercel/analytics/react';
@@ -198,6 +199,7 @@ function App() {
           transitionMs={SECTION_PAGE_TRANSITION_MS}
         />
       </Suspense>
+      <LoadingScreen />
       {heroProgress > 0.01 ? (
         <ScrollMeter
           activeIndex={currentPhaseIndex}
@@ -245,7 +247,6 @@ function App() {
                   chamberTheme={chamberTheme}
                   cvHref={aboutSection?.cvHref}
                   githubHref={githubContact?.href}
-                  hasStartedNavigating={heroProgress > 0.01}
                   linkedInHref={linkedInContact?.href}
                   isMobile={isMobile}
                   onNavigateToSection={navigateToSection}
