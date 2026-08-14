@@ -9,7 +9,7 @@ function HeroTitleCard({
 }) {
   return (
     <section
-      className="relative flex min-h-[var(--app-height)] w-full flex-col overflow-hidden text-white"
+      className="relative flex min-h-[var(--app-height)] w-full flex-col overflow-hidden bg-black text-white"
       data-testid="hero-title-card"
       aria-labelledby="portfolio-title"
     >
@@ -24,13 +24,13 @@ function HeroTitleCard({
             <rect width="1600" height="900" fill="white" />
             <text
               x="800"
-              y="650"
+              y="610"
               textAnchor="middle"
-              textLength="1480"
+              textLength="1460"
               lengthAdjust="spacingAndGlyphs"
               fill="black"
               fontFamily="Arial Black, Impact, sans-serif"
-              fontSize="720"
+              fontSize="610"
               fontWeight="900"
             >
               JOÃO VEDOR
@@ -40,27 +40,31 @@ function HeroTitleCard({
         <rect width="1600" height="900" fill="black" mask="url(#hero-title-cutout)" />
         <text
           x="800"
-          y="650"
+          y="610"
           textAnchor="middle"
-          textLength="1480"
+          textLength="1460"
           lengthAdjust="spacingAndGlyphs"
           fill="transparent"
           stroke="white"
-          strokeOpacity="0.38"
+          strokeOpacity="0.45"
           strokeWidth="3"
           fontFamily="Arial Black, Impact, sans-serif"
-          fontSize="720"
+          fontSize="610"
           fontWeight="900"
         >
           JOÃO VEDOR
         </text>
       </svg>
 
-      <div className="relative z-10 flex min-h-[var(--app-height)] flex-col">
-        <header className="flex items-center justify-between gap-4 border-b border-white/35 bg-black/55 px-5 py-4 text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-white backdrop-blur-sm sm:px-8 sm:text-xs lg:px-12">
+      <div className="relative z-10 flex min-h-[var(--app-height)] flex-col px-5 sm:px-8 lg:px-12">
+        <header className="grid grid-cols-[1fr_auto] items-center gap-4 pt-5 text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-white sm:pt-6 sm:text-xs">
           <span>João Vedor / Portfolio</span>
-          <span>01 / 01</span>
+          <span>2026</span>
         </header>
+
+        <p className="mt-[7vh] text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-white/75 sm:text-xs">
+          Selected work / 01—04
+        </p>
 
         <div className="flex-1" aria-hidden="true" />
 
@@ -68,9 +72,15 @@ function HeroTitleCard({
           João Vedor, Bioinformatics and Biomedical NLP Developer
         </h1>
 
-        <footer className="border-t border-white/35 bg-black/70 px-5 py-5 backdrop-blur-sm sm:px-8 sm:py-6 lg:px-12">
-          <div className="mx-auto grid max-w-[96rem] gap-5 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)_minmax(0,0.8fr)] lg:items-center lg:gap-8">
-            <p className="max-w-md text-sm leading-6 text-white/85 lg:text-left">
+        <div className="border-y border-white/35">
+          <div className="grid gap-4 py-3 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-white/80 sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:text-xs">
+            <span>Portfolio navigation</span>
+            <span className="hidden sm:block">Scroll to enter</span>
+            <span className="text-left sm:text-right">Lisbon, Portugal</span>
+          </div>
+
+          <div className="grid gap-5 border-t border-white/35 py-5 sm:py-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.5fr)_minmax(0,0.85fr)] lg:items-center lg:gap-8">
+            <p className="max-w-sm text-sm leading-6 text-white/85">
               I build software, data systems, and biomedical NLP tooling that turn complex
               information into useful, maintainable products.
             </p>
@@ -141,9 +151,7 @@ function HeroTitleCard({
 
             <div className="flex items-center justify-between gap-4 lg:justify-end">
               <p className="text-xs leading-5 text-white/75">
-                {isMobile
-                  ? 'Swipe up to enter the microscope.'
-                  : 'Scroll to enter the microscope.'}
+                {isMobile ? 'Swipe up to explore.' : 'Use scroll or arrow keys.'}
               </p>
               <button
                 type="button"
@@ -156,6 +164,11 @@ function HeroTitleCard({
               </button>
             </div>
           </div>
+        </div>
+
+        <footer className="flex items-center justify-between gap-4 py-4 text-[0.58rem] font-semibold uppercase tracking-[0.2em] text-white/65 sm:py-5 sm:text-[0.65rem]">
+          <span>Software / Data / Research</span>
+          <span>© João Vedor</span>
         </footer>
       </div>
     </section>
