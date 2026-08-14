@@ -53,13 +53,7 @@ function HeroTitleCard({
         </h1>
 
         <div className="border-y border-white/35">
-          <div className="grid gap-4 py-3 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-white/80 sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:text-xs">
-            <span aria-hidden="true" />
-            <span className="hidden sm:block">Scroll to enter</span>
-            <span className="text-left sm:text-right">Lisbon, Portugal</span>
-          </div>
-
-          <div className="grid gap-5 border-t border-white/35 py-5 sm:py-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.5fr)_minmax(0,0.85fr)] lg:items-center lg:gap-8">
+          <div className="grid gap-5 py-5 sm:py-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.5fr)_minmax(0,0.85fr)] lg:items-center lg:gap-8">
             <p className="max-w-sm text-sm leading-6 text-white/85">
               I build software, data systems, and biomedical NLP tooling that turn complex
               information into useful, maintainable products.
