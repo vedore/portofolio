@@ -114,7 +114,7 @@ export const sections = [
       {
         title: 'Bioinformatics Studies - XMR4EL',
         type: 'Academic / Research Work',
-        status: 'Research',
+        status: 'Done',
         year: '2026',
         summary:
           'Master’s thesis work on semantic indexing, descriptor partitioning, and classification for biomedical entity linking.',
@@ -137,7 +137,7 @@ export const sections = [
       {
         title: 'Sample2Report',
         type: 'CLI toolkit',
-        status: 'In Progress',
+        status: 'Stopped (Not finished)',
         year: '2026',
         summary:
           'CLI toolkit that turns common bioinformatics inputs such as FASTA files, sample metadata, count matrices, and gene lists into reproducible analysis reports with validation, summary statistics, plots, and exportable results.',
@@ -154,7 +154,7 @@ export const sections = [
       {
         title: 'Microscope Portfolio',
         type: 'Interactive Portfolio',
-        status: 'Stopped (for now)',
+        status: 'Done',
         year: '2026',
         summary:
           'A portfolio experience built around the idea of looking through a microscope, using spatial navigation, scroll-driven movement, and a scientific visual language.',
