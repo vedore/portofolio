@@ -8,7 +8,7 @@ export const sections = [
     name: 'João Vedor',
     role: 'Software Developer · Bioinformatics & Biomedical NLP',
     photo: '/images/1766444787358.jpeg',
-    cvHref: '/documents/Joao_Vedor_CV.pdf',
+    cvHref: '/documents/Joao_Vedor_Bioinformatician.pdf',
 
     text: 'A closer look at my background in software development, database systems, and bioinformatics.',
 
