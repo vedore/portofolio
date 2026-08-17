@@ -154,7 +154,7 @@ export const sections = [
       {
         title: 'Microscope Portfolio',
         type: 'Interactive Portfolio',
-        status: 'In Progress',
+        status: 'Stopped (for now)',
         year: '2026',
         summary:
           'A portfolio experience built around the idea of looking through a microscope, using spatial navigation, scroll-driven movement, and a scientific visual language.',
@@ -163,7 +163,29 @@ export const sections = [
           {
             label: 'Source Repository',
             description: 'GitHub Archive',
-            href: 'https://github.com/vedore/portfolio',
+            href: 'https://github.com/vedore/portofolio',
+            kind: 'github',
+          },
+        ],
+      },
+      {
+        title: 'scOOD-Benchmark',
+        type: 'Single-Cell ML Benchmark',
+        status: 'In Progress',
+        year: '2026',
+        summary:
+          'A benchmark project for evaluating how well single-cell foundation models generalize to out-of-distribution data across populations, donors, laboratories, and studies.',
+        tags: [
+          'Single-Cell RNA-seq',
+          'Foundation Models',
+          'OOD Generalization',
+          'Benchmarking',
+        ],
+        links: [
+          {
+            label: 'Source Repository',
+            description: 'GitHub Repository',
+            href: 'https://github.com/vedore/sc-ood-benchmark',
             kind: 'github',
           },
         ],
