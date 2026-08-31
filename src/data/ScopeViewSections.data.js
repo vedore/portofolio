@@ -8,7 +8,7 @@ export const sections = [
     name: 'João Vedor',
     role: 'Software Developer · Bioinformatics & Biomedical NLP',
     photo: '/images/1766444787358.jpeg',
-    cvHref: '/documents/Joao_Vedor_CV.pdf',
+    cvHref: '/documents/Joao_Vedor_Bioinformatician.pdf',
 
     text: 'A closer look at my background in software development, database systems, and bioinformatics.',
 
@@ -114,7 +114,7 @@ export const sections = [
       {
         title: 'Bioinformatics Studies - XMR4EL',
         type: 'Academic / Research Work',
-        status: 'Research',
+        status: 'Done',
         year: '2026',
         summary:
           'Master’s thesis work on semantic indexing, descriptor partitioning, and classification for biomedical entity linking.',
@@ -137,7 +137,7 @@ export const sections = [
       {
         title: 'Sample2Report',
         type: 'CLI toolkit',
-        status: 'In Progress',
+        status: 'Stopped (Not finished)',
         year: '2026',
         summary:
           'CLI toolkit that turns common bioinformatics inputs such as FASTA files, sample metadata, count matrices, and gene lists into reproducible analysis reports with validation, summary statistics, plots, and exportable results.',
@@ -154,7 +154,7 @@ export const sections = [
       {
         title: 'Microscope Portfolio',
         type: 'Interactive Portfolio',
-        status: 'In Progress',
+        status: 'Done',
         year: '2026',
         summary:
           'A portfolio experience built around the idea of looking through a microscope, using spatial navigation, scroll-driven movement, and a scientific visual language.',
@@ -163,7 +163,29 @@ export const sections = [
           {
             label: 'Source Repository',
             description: 'GitHub Archive',
-            href: 'https://github.com/vedore/portfolio',
+            href: 'https://github.com/vedore/portofolio',
+            kind: 'github',
+          },
+        ],
+      },
+      {
+        title: 'scOOD-Benchmark',
+        type: 'Single-Cell ML Benchmark',
+        status: 'In Progress',
+        year: '2026',
+        summary:
+          'A benchmark project for evaluating how well single-cell foundation models generalize to out-of-distribution data across populations, donors, laboratories, and studies.',
+        tags: [
+          'Single-Cell RNA-seq',
+          'Foundation Models',
+          'OOD Generalization',
+          'Benchmarking',
+        ],
+        links: [
+          {
+            label: 'Source Repository',
+            description: 'GitHub Repository',
+            href: 'https://github.com/vedore/sc-ood-benchmark',
             kind: 'github',
           },
         ],
