@@ -23,7 +23,6 @@ const SectionPage = lazy(() => import('./components/ui/SectionPage'));
 const ENABLE_DEV_CONTROLS = import.meta.env.VITE_ENABLE_ORBIT === 'true';
 const aboutSection = sections.find((section) => section.id === 'about');
 const contactSection = sections.find((section) => section.id === 'contact');
-const githubContact = contactSection?.contactMethods?.find((method) => method.label === 'GitHub');
 const linkedInContact = contactSection?.contactMethods?.find((method) => method.label === 'LinkedIn');
 
 function App() {
@@ -206,7 +205,7 @@ function App() {
         onScrub={scrubToMeterPosition}
         onSelectPhase={navigateToPhase}
       />
-      <div className="fixed right-5 top-5 z-40 flex gap-2 md:right-8 md:top-8">
+      <div className="fixed right-5 top-5 z-40 hidden gap-2 md:right-8 md:top-8 md:flex">
         {scopeProgress < SCOPE_ACTIVATION_START ? (
           <button
             type="button"
@@ -238,76 +237,65 @@ function App() {
               style={{ minHeight: 'var(--app-height)' }}
             >
               <div
-                className="max-h-[calc(var(--app-height)-2rem)] max-w-xl overflow-y-auto rounded-2xl border border-white/50 bg-white/55 p-5 shadow-md shadow-sky-100/35 transition-opacity duration-300 sm:rounded-3xl sm:p-6 lg:p-8"
+                className="max-h-[calc(var(--app-height)-2rem)] max-w-md overflow-y-auto rounded-2xl border border-white/50 bg-white/55 p-4 shadow-md shadow-sky-100/35 transition-opacity duration-300 sm:max-w-xl sm:rounded-3xl sm:p-6 lg:p-8"
                 style={{ opacity: heroCardOpacity }}
-              >
-                <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-lab-deep/70 sm:text-sm">
-                  João Vedor / Portfolio
-                </p>
-                <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl xl:text-6xl">
-                  Bioinformatics &amp; Biomedical NLP Developer.
-                </h1>
-                <p className="mt-3 max-w-lg text-sm leading-6 text-slate-700 sm:text-base sm:leading-7">
-                  I build software, data systems, and biomedical NLP tooling that turn complex
-                  information into useful, maintainable products.
-                </p>
+                >
+                  <p className="mb-2 text-xs font-medium uppercase tracking-[0.24em] text-lab-deep/70 sm:mb-3 sm:text-sm">
+                    João Vedor
+                  </p>
+                  <h1 className="text-2xl font-semibold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl xl:text-6xl">
+                    Biomedical NLP Developer.
+                  </h1>
+                  <p className="mt-2 max-w-lg text-sm leading-6 text-slate-700 sm:mt-3 sm:text-base sm:leading-7">
+                    I build reliable software for biomedical data.
+                  </p>
 
-                <div className="mt-5 flex flex-wrap gap-2.5" aria-label="Portfolio actions">
-                  <button
-                    type="button"
-                    onClick={() => navigateToSection('projects')}
-                    className="rounded-full bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
-                  >
-                    View selected work
-                  </button>
-                  {aboutSection?.cvHref ? (
-                    <a
-                      href={aboutSection.cvHref}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-full border border-slate-300 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-emerald-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+                  <div className="mt-4 flex flex-wrap gap-2.5 sm:mt-5" aria-label="Portfolio actions">
+                    <button
+                      type="button"
+                      onClick={() => navigateToSection('projects')}
+                      className="inline-flex min-h-11 items-center justify-center rounded-full bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
                     >
-                      Download CV <span aria-hidden="true">↗</span>
-                    </a>
-                  ) : null}
-                  {githubContact ? (
-                    <a
-                      href={githubContact.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-full border border-slate-300 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-emerald-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
-                    >
-                      GitHub <span aria-hidden="true">↗</span>
-                    </a>
-                  ) : null}
-                </div>
+                      View projects
+                    </button>
+                    {aboutSection?.cvHref ? (
+                      <a
+                        href={aboutSection.cvHref}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-300 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-emerald-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+                      >
+                        Download CV <span aria-hidden="true">↗</span>
+                      </a>
+                    ) : null}
+                  </div>
 
-                <nav className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-emerald-900" aria-label="Portfolio sections">
-                  <button type="button" onClick={() => navigateToSection('about')} className="underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
-                    About
-                  </button>
-                  <button type="button" onClick={() => navigateToSection('projects')} className="underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
-                    Projects
-                  </button>
-                  <button type="button" onClick={() => navigateToSection('skills')} className="underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
-                    Skills
-                  </button>
-                  <button type="button" onClick={() => navigateToSection('contact')} className="underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
-                    Contact
-                  </button>
-                  {linkedInContact ? (
-                    <a
-                      href={linkedInContact.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
-                    >
-                      LinkedIn <span aria-hidden="true">↗</span>
-                    </a>
-                  ) : null}
-                </nav>
+                  <nav className="mt-5 hidden flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-emerald-900 sm:flex" aria-label="Portfolio sections">
+                    <button type="button" onClick={() => navigateToSection('about')} className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
+                      About
+                    </button>
+                    <button type="button" onClick={() => navigateToSection('projects')} className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
+                      Projects
+                    </button>
+                    <button type="button" onClick={() => navigateToSection('skills')} className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
+                      Skills
+                    </button>
+                    <button type="button" onClick={() => navigateToSection('contact')} className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
+                      Contact
+                    </button>
+                    {linkedInContact ? (
+                      <a
+                        href={linkedInContact.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+                      >
+                        LinkedIn <span aria-hidden="true">↗</span>
+                      </a>
+                    ) : null}
+                  </nav>
 
-                <div className="mt-5 flex items-center gap-3 border-t border-slate-900/10 pt-4">
+                  <div className="mt-5 hidden items-center gap-3 border-t border-slate-900/10 pt-4 sm:flex">
                   <span
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-800 text-lg text-white"
                     aria-hidden="true"

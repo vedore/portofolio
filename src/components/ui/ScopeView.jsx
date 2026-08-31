@@ -85,7 +85,7 @@ const ScopeNavButton = memo(function ScopeNavButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="pointer-events-auto absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/15 text-2xl font-light text-emerald-500 transition-colors duration-200 hover:bg-black/30 hover:text-emerald-400 disabled:cursor-not-allowed disabled:opacity-20 md:h-12 md:w-12 md:text-4xl"
+      className="pointer-events-auto absolute top-[90%] z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/15 text-2xl font-light text-emerald-500 transition-colors duration-200 hover:bg-black/30 hover:text-emerald-400 disabled:cursor-not-allowed disabled:opacity-20 md:top-1/2 md:h-12 md:w-12 md:text-4xl"
       style={isPrevious ? { left: inset } : { right: inset }}
       aria-label={`${isPrevious ? 'Previous' : 'Next'} specimen`}
     >
@@ -99,8 +99,11 @@ const ScopeCard = memo(function ScopeCard({
   isInteractive,
   tone = 'current',
   style,
+  isMobile,
   onOpenSection,
 }) {
+  const summary = isMobile ? section.scopeText ?? section.text : section.text;
+
   return (
     <section
       className="absolute inset-0 flex flex-col items-center justify-center px-8 py-10 text-center md:px-14"
@@ -132,8 +135,8 @@ const ScopeCard = memo(function ScopeCard({
         </button>
       </h2>
 
-      <p className="mt-5 max-w-md text-sm leading-7 text-slate-700 md:text-base">
-        {section.text}
+      <p className="mt-4 max-w-md text-sm leading-6 text-slate-700 md:mt-5 md:text-base md:leading-7">
+        {summary}
       </p>
     </section>
   );
@@ -223,6 +226,7 @@ function ScopeView({
               section={currentSection}
               isInteractive={isLensInteractive}
               style={getCardStyle(cardStyleProps)}
+              isMobile={isMobile}
               onOpenSection={onOpenSection}
             />
 
@@ -233,6 +237,7 @@ function ScopeView({
                 isInteractive={false}
                 tone="next"
                 style={getCardStyle({ ...cardStyleProps, isEntering: true })}
+                isMobile={isMobile}
                 onOpenSection={onOpenSection}
               />
             ) : null}

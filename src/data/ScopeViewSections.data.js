@@ -11,6 +11,7 @@ export const sections = [
     cvHref: '/documents/Joao_Vedor_Bioinformatician.pdf',
 
     text: 'A closer look at my background in software development, database systems, and bioinformatics.',
+    scopeText: 'Software, databases, and biomedical data systems.',
 
     heading: 'Building useful software where systems, data, and biomedical NLP meet.',
 
@@ -106,6 +107,7 @@ export const sections = [
     layout: 'projects',
 
     text: 'Selected builds, experiments, and case studies presented as focused observations inside the scope view.',
+    scopeText: 'Selected software, research, and interactive builds.',
 
     detailIntro:
       'A selection of experiments, prototypes, and complete builds that show how I take a problem from concept to implementation.',
@@ -227,6 +229,7 @@ export const sections = [
     layout: 'skills',
 
     text: 'Tooling, prototyping, software, and craft distilled into a focused technical inventory.',
+    scopeText: 'Tools for product, data, and research work.',
 
     detailIntro:
       'The tools, languages, frameworks, and practices I use to turn ideas into software that is usable, readable, and technically solid.',
@@ -330,6 +333,7 @@ export const sections = [
     layout: 'contact',
 
     text: 'Email, links, and collaboration details revealed as the final field of view inside the lens.',
+    scopeText: 'A direct line for collaboration and technical work.',
 
     detailIntro:
       'A direct route for project inquiries, collaborations, and conversations about the work shown in the scope.',

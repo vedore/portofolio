@@ -60,7 +60,7 @@ function ScrollMeter({ activeIndex, meterPosition, phases = [], onScrub, onSelec
 
   return (
     <div
-      className="fixed inset-x-0 z-40 flex justify-center px-5 md:px-5"
+      className="fixed inset-x-0 z-40 hidden justify-center px-5 md:flex"
       style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
     >
       <div className="flex w-full max-w-[18rem] items-center gap-1.5 rounded-full border border-white/60 bg-white/80 px-2.5 py-2 shadow-[0_6px_18px_rgba(15,23,42,0.1)] md:max-w-4xl md:gap-3 md:px-4 md:py-3">
