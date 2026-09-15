@@ -1,5 +1,8 @@
 import { Suspense, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
+import { BakeShadows } from '@react-three/drei';
+import { ACESFilmicToneMapping } from 'three';
+import Environment from './Environment';
 import MicroscopeModel from './MicroscopeModel';
 import ScrollCamera from './ScrollCamera';
 import Lights from './Lights';
@@ -13,10 +16,12 @@ import {
 } from '../../config/scopeTiming.js';
 
 const ENABLE_DEV_CONTROLS = import.meta.env.VITE_ENABLE_ORBIT === 'true';
-const ENABLE_SHADOWS = false;
 
 function Scene({ progress, isMobile, scopeProgress = 0, chamberTheme = 'warm' }) {
-  const [hasWebGL, setHasWebGL] = useState(true);
+  const [hasWebGL, setHasWebGL] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [isPageVisible, setIsPageVisible] = useState(true);
+  const enableShadows = !isMobile;
   const devCameraPath = isMobile ? CAMERA_PATH.mobile : CAMERA_PATH.desktop;
   const scopeFade = Math.min(
     1,
@@ -25,12 +30,24 @@ function Scene({ progress, isMobile, scopeProgress = 0, chamberTheme = 'warm' })
 
   useEffect(() => {
     const canvas = document.createElement('canvas');
-    const gl =
-      canvas.getContext('webgl') ||
-      canvas.getContext('experimental-webgl') ||
-      canvas.getContext('webgl2');
-
+    // Three r181 requires WebGL2. Release the probe's GPU context afterward.
+    const gl = canvas.getContext('webgl2');
     setHasWebGL(Boolean(gl));
+    gl?.getExtension('WEBGL_lose_context')?.loseContext();
+  }, []);
+
+  useEffect(() => {
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updateMotion = () => setReducedMotion(motion.matches);
+    const updateVisibility = () => setIsPageVisible(!document.hidden);
+    updateMotion();
+    updateVisibility();
+    motion.addEventListener('change', updateMotion);
+    document.addEventListener('visibilitychange', updateVisibility);
+    return () => {
+      motion.removeEventListener('change', updateMotion);
+      document.removeEventListener('visibilitychange', updateVisibility);
+    };
   }, []);
 
   if (!hasWebGL) {
@@ -46,25 +63,34 @@ function Scene({ progress, isMobile, scopeProgress = 0, chamberTheme = 'warm' })
       }}
     >
       <Canvas
-        shadows={ENABLE_SHADOWS}
-        dpr={1}
+        shadows={enableShadows}
+        dpr={isMobile ? 1 : [1, 1.5]}
         frameloop={ENABLE_DEV_CONTROLS ? 'always' : 'demand'}
         camera={{ position: [0, 2.4, 7.4], fov: isMobile ? 42 : 35, near: 0.1, far: 100 }}
         gl={{
-          antialias: false,
-          alpha: true,
+          antialias: true,
+          alpha: false,
+          toneMapping: ACESFilmicToneMapping,
+          toneMappingExposure: 1,
           powerPreference: 'default',
         }}
       >
-        {/*BackGround Color */}
-        <color attach="background" args={['#FFFFFF']} />
+        <color attach="background" args={['#b4c7c8']} />
 
         <Suspense fallback={null}>
-          <Lights enableShadows={ENABLE_SHADOWS} themeMode={chamberTheme} />
+          <Environment />
+          <Lights enableShadows={enableShadows} themeMode={chamberTheme} />
           {!ENABLE_DEV_CONTROLS ? <ScrollCamera progress={progress} isMobile={isMobile} /> : null}
           <MicroscopeChamber themeMode={chamberTheme} />
-          <WaterfallPlane isActive={scopeFade < 1} themeMode={chamberTheme} />
+          <WaterfallPlane
+            isActive={scopeFade < 1 && isPageVisible}
+            themeMode={chamberTheme}
+            reducedMotion={reducedMotion}
+            isMobile={isMobile}
+          />
           <MicroscopeModel />
+          {/* Geometry and light positions are static; only the camera moves. */}
+          {enableShadows ? <BakeShadows /> : null}
         </Suspense>
 
         {ENABLE_DEV_CONTROLS ? (

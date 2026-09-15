@@ -37,6 +37,7 @@ src/
   index.css                             # global styles and reduced-motion rules
   config/
     cameraPath.js                       # desktop/mobile camera coordinates
+    sceneAppearance.js                  # microscope surface profiles and bench dimensions
     scopeTiming.js                      # hero, scope, camera, and modal timing
     sceneThemes.js                      # legacy day/night config for unused scene experiments
   data/
@@ -55,12 +56,13 @@ src/
       ScrollCamera.jsx                  # staged camera choreography
       MicroscopeModel.jsx               # `/models/microscope.glb` loader
       MicroscopeChamber.jsx             # laboratory geometry
-      WaterfallPlane.jsx                # animated shader display
+      LabBench.jsx                      # grounded bench, contact shading, specimen props
+      WaterfallPlane.jsx                # rate-limited molecular ribbon shader display
       ThemeTransition.jsx               # warm/cold material and light interpolation
       Lights.jsx                         # theme-aware scene lighting
       CameraTuner.jsx                   # development-only orbit controls
-      Environment.jsx, SunBeam.jsx,
-      WavePlane.jsx                     # currently not rendered by Scene.jsx
+      Environment.jsx                   # locally baked softbox environment reflections
+      SunBeam.jsx, WavePlane.jsx         # currently not rendered by Scene.jsx
     ui/
       HeroTitleCard.jsx                 # landing card, direct navigation, theme toggle
       LensTransition.jsx                # transition from scene to scope
@@ -121,6 +123,14 @@ public/
 - `Scene` uses `frameloop="demand"` in production. Animated components must
   call Fiber's `invalidate()` while they need another frame. Do not switch to
   an always-running render loop without measuring the impact.
+- The molecular display requests frames at 24Hz on desktop and 12Hz on mobile;
+  its timer stops for reduced motion, hidden tabs, and the opaque scope view.
+- Desktop uses one baked shadow map and a DPR ceiling of 1.5. Mobile uses DPR 1
+  and static contact shading without a shadow map. Re-bake shadows if geometry
+  or light positions become animated; currently only the camera moves.
+- `Environment.jsx` generates reflections locally once with `RoomEnvironment`.
+  No remote HDR is required. The microscope clones cached GLB materials before
+  applying the surface-specific profiles in `sceneAppearance.js`.
 - Keep development camera controls behind `VITE_ENABLE_ORBIT=true`. In this
   mode, `CameraTuner` replaces `ScrollCamera` and pointer interactions are
   deliberately enabled for the Canvas.
@@ -167,8 +177,8 @@ scope arrows, and modal open/close behavior together.
 
 ## Known repository state
 
-- `src/config/sceneThemes.js`, `SunBeam.jsx`, `WavePlane.jsx`, and
-  `Environment.jsx` remain tracked but are not imported by the active
+- `src/config/sceneThemes.js`, `SunBeam.jsx`, and `WavePlane.jsx`
+  remain tracked but are not imported by the active
   `Scene.jsx` composition. Do not treat them as live rendering paths without
   wiring and verifying them.
 - `SCENE_THEMES` uses legacy `day`/`night` names, while the active theme system

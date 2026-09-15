@@ -1,52 +1,42 @@
-import { Text } from '@react-three/drei';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { ThemedStandardMaterial } from './ThemeTransition.jsx';
 
 const vertexShader = `
-  uniform float uTime;
   varying vec2 vUv;
 
   void main() {
     vUv = uv;
 
-    vec3 pos = position;
-    pos.z += sin(pos.x * 8.0 + uTime * 1.2) * 0.015;
-
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 
 const fragmentShader = `
   uniform float uTime;
+  uniform vec3 uAccent;
   varying vec2 vUv;
 
-  float lineMask(float y, float speed, float offset) {
-    float row = fract(y * 18.0 - uTime * speed + offset);
-    return smoothstep(0.08, 0.0, abs(row - 0.5));
-  }
-
   void main() {
-    float column = step(0.08, fract(vUv.x * 10.0)) * (1.0 - step(0.82, fract(vUv.x * 10.0)));
-    float lineA = lineMask(vUv.y, 0.18, floor(vUv.x * 10.0) * 0.13);
-    float lineB = lineMask(vUv.y, 0.28, floor(vUv.x * 6.0) * 0.21);
-    float scan = smoothstep(0.035, 0.0, abs(fract(vUv.y * 2.0 - uTime * 0.12) - 0.5));
-    float edgeFade = smoothstep(0.0, 0.14, vUv.x) * (1.0 - smoothstep(0.86, 1.0, vUv.x));
-    float intensity = (lineA * 0.7 + lineB * 0.32 + scan * 0.16) * column * edgeFade;
-
-    vec3 base = vec3(0.04, 0.075, 0.065);
-    vec3 green = vec3(0.44, 1.0, 0.66);
-    vec3 amber = vec3(1.0, 0.72, 0.32);
-    vec3 color = mix(base, green, intensity);
-    color = mix(color, amber, scan * 0.18);
-
-    gl_FragColor = vec4(color, 0.58 + intensity * 0.36);
+    // A quiet molecular ribbon instead of a high-contrast code waterfall.
+    float phase = vUv.x * 18.85 - uTime * 0.22;
+    float wave = sin(phase) * 0.23;
+    float strandA = 1.0 - smoothstep(0.003, 0.012, abs(vUv.y - 0.5 - wave));
+    float strandB = 1.0 - smoothstep(0.003, 0.012, abs(vUv.y - 0.5 + wave));
+    float rung = 1.0 - smoothstep(0.035, 0.095, abs(fract(vUv.x * 42.0) - 0.5));
+    rung *= 1.0 - smoothstep(abs(wave), abs(wave) + 0.01, abs(vUv.y - 0.5));
+    vec2 gridUv = abs(fract(vUv * vec2(42.0, 18.0)) - 0.5);
+    float grid = 1.0 - smoothstep(0.012, 0.035, min(gridUv.x, gridUv.y));
+    float edge = smoothstep(0.0, 0.15, vUv.x) * (1.0 - smoothstep(0.85, 1.0, vUv.x));
+    vec3 base = vec3(0.012, 0.028, 0.034);
+    vec3 color = base + uAccent * (strandA * 0.38 + strandB * 0.22 + rung * 0.09) * edge;
+    color += uAccent * grid * 0.025;
+    gl_FragColor = vec4(color, 1.0);
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
   }
 `;
-
-const CODE_LINES = [
-];
 
 function useCodeMaterial() {
   return useMemo(
@@ -54,30 +44,42 @@ function useCodeMaterial() {
       new THREE.ShaderMaterial({
         uniforms: {
           uTime: { value: 0 },
+          uAccent: { value: new THREE.Color('#76d5cd') },
         },
         vertexShader,
         fragmentShader,
-        transparent: true,
-        depthWrite: false,
+        toneMapped: false,
         side: THREE.DoubleSide,
       }),
     [],
   );
 }
 
-function WaterfallPlane({ isActive = true, themeMode = 'warm' }) {
+function WaterfallPlane({ isActive = true, themeMode = 'warm', reducedMotion = false, isMobile = false }) {
   const invalidate = useThree((state) => state.invalidate);
   const material = useCodeMaterial();
+  const accent = useMemo(() => new THREE.Color(themeMode === 'cold' ? '#76d5cd' : '#d8b97a'), [themeMode]);
 
-  useFrame((state) => {
-    if (!isActive) return;
+  useEffect(() => () => material.dispose(), [material]);
 
-    material.uniforms.uTime.value = state.clock.elapsedTime;
+  useEffect(() => {
     invalidate();
+    if (!isActive || reducedMotion) return undefined;
+    // Don't turn a demand Canvas into a 60fps decorative animation loop.
+    const timer = window.setInterval(invalidate, 1000 / (isMobile ? 12 : 24));
+    return () => window.clearInterval(timer);
+  }, [invalidate, isActive, isMobile, reducedMotion]);
+
+  useEffect(() => invalidate(), [accent, invalidate]);
+
+  useFrame((_, delta) => {
+    if (!isActive) return;
+    if (!reducedMotion) material.uniforms.uTime.value += Math.min(delta, 0.1);
+    material.uniforms.uAccent.value.lerp(accent, reducedMotion ? 1 : 1 - Math.exp(-delta * 4.5));
   });
 
   return (
-    <group position={[-27, 1.7, 0]} rotation={[0, Math.PI / 2, 0]}>
+    <group name="molecular-display" position={[-9.3, 1.9, 0]} rotation={[0, Math.PI / 2, 0]} scale={[0.6, 0.5, 0.5]}>
       <mesh position={[0, 0.2, -0.34]} renderOrder={-7}>
         <planeGeometry args={[22, 10]} />
         <ThemedStandardMaterial
@@ -90,7 +92,7 @@ function WaterfallPlane({ isActive = true, themeMode = 'warm' }) {
       </mesh>
 
       <mesh position={[0, 0.2, -0.22]} renderOrder={-6}>
-        <planeGeometry args={[18, 8, 32, 32]} />
+        <planeGeometry args={[18, 8]} />
         <primitive object={material} attach="material" />
       </mesh>
 
@@ -115,20 +117,6 @@ function WaterfallPlane({ isActive = true, themeMode = 'warm' }) {
         />
       </mesh>
 
-      {CODE_LINES.map((line, index) => (
-        <Text
-          key={line}
-          position={[-7.8 + (index % 2) * 8.2, 2.9 - index * 0.92, -0.04]}
-          fontSize={0.42}
-          color={index % 2 ? '#fbbf24' : '#a7f3d0'}
-          anchorX="left"
-          anchorY="middle"
-          outlineWidth={0.004}
-          outlineColor="#08110d"
-        >
-          {line}
-        </Text>
-      ))}
     </group>
   );
 }
