@@ -6,8 +6,8 @@ function Lights({ enableShadows = false, themeMode = 'warm' }) {
       <ThemedLight
         type="ambientLight"
         themeMode={themeMode}
-        warmIntensity={0.22}
-        coldIntensity={0.28}
+        warmIntensity={0.14}
+        coldIntensity={0.08}
         warmColor="#fff1d6"
         coldColor="#eef8ff"
       />
@@ -15,8 +15,8 @@ function Lights({ enableShadows = false, themeMode = 'warm' }) {
         type="directionalLight"
         themeMode={themeMode}
         position={[1, 7, 4]}
-        warmIntensity={3.2}
-        coldIntensity={3}
+        warmIntensity={1.9}
+        coldIntensity={0.85}
         warmColor="#ffe0aa"
         coldColor="#e5f4ff"
         castShadow={enableShadows}
@@ -35,8 +35,8 @@ function Lights({ enableShadows = false, themeMode = 'warm' }) {
         type="directionalLight"
         themeMode={themeMode}
         position={[-4, 3.5, 1]}
-        warmIntensity={0.9}
-        coldIntensity={1.1}
+        warmIntensity={0.5}
+        coldIntensity={0.3}
         warmColor="#ffbd73"
         coldColor="#b8e7ff"
       />
@@ -44,8 +44,8 @@ function Lights({ enableShadows = false, themeMode = 'warm' }) {
         type="directionalLight"
         themeMode={themeMode}
         position={[-2, 5, -4]}
-        warmIntensity={1.8}
-        coldIntensity={2.1}
+        warmIntensity={0.9}
+        coldIntensity={0.55}
         warmColor="#ffce91"
         coldColor="#8adce5"
       />

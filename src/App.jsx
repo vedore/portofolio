@@ -1,8 +1,6 @@
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
-import Scene from './components/scene/Scene';
 import LensTransition from './components/ui/LensTransition';
 import ScopeView from './components/ui/ScopeView';
-import LoadingScreen from './components/ui/LoadingScreen';
 import ScrollMeter from './components/ui/ScrollMeter';
 import { Analytics } from '@vercel/analytics/react';
 import sections from './data/ScopeViewSections.data.js';
@@ -10,7 +8,6 @@ import {
   HERO_ANIMATION_END,
   HERO_ANIMATION_START,
   HERO_SCROLL_HEIGHT,
-  SCOPE_ACTIVATION_START,
   SECTION_PAGE_TRANSITION_MS,
 } from './config/scopeTiming.js';
 import { useScopeProgress } from './hooks/useScopeProgress';
@@ -18,6 +15,7 @@ import { useScrollNavigation } from './hooks/useScrollNavigation';
 import { useScrollProgress } from './hooks/useScrollProgress';
 import { getInteractiveElement } from './utils/dom.js';
 
+const Scene = lazy(() => import('./components/scene/Scene'));
 const SectionPage = lazy(() => import('./components/ui/SectionPage'));
 
 const ENABLE_DEV_CONTROLS = import.meta.env.VITE_ENABLE_ORBIT === 'true';
@@ -27,13 +25,12 @@ const linkedInContact = contactSection?.contactMethods?.find((method) => method.
 
 function App() {
   const [activeSection, setActiveSection] = useState(null);
-  const [chamberTheme, setChamberTheme] = useState('cold');
   const [isSectionPageOpen, setIsSectionPageOpen] = useState(false);
   const closeTimerRef = useRef(null);
   const scrollAnimationRef = useRef(0);
   const scrollContainerRef = useRef(null);
 
-  const { progress, heroProgress, isMobile } = useScrollProgress({
+  const { progress, heroProgress, isMobile, reducedMotion } = useScrollProgress({
     heroHeightVh: HERO_SCROLL_HEIGHT,
     animationStartVh: HERO_ANIMATION_START,
     animationEndVh: HERO_ANIMATION_END,
@@ -43,12 +40,15 @@ function App() {
   const {
     currentPhaseIndex,
     heroCardOpacity,
+    heroDetailsOpacity,
+    heroBackdropOpacity,
+    lensEntry,
     meterPosition,
     phaseTargets,
     scopeEndVh,
     scopeProgress,
     scopeStartVh,
-  } = useScopeProgress({ heroProgress, sections });
+  } = useScopeProgress({ heroProgress, sections, reducedMotion });
 
   const {
     navigateToPhase,
@@ -176,15 +176,19 @@ function App() {
       className="relative overflow-x-hidden overflow-y-auto bg-slate-50 text-slate-900 overscroll-y-contain"
       style={{ height: 'var(--app-height)' }}
     >
-      <Scene
-        progress={progress}
-        isMobile={isMobile}
-        scopeProgress={scopeProgress}
-        chamberTheme={chamberTheme}
-      />
-      <LensTransition progress={progress} scopeProgress={scopeProgress} isMobile={isMobile} />
+      <Suspense fallback={null}>
+        <Scene
+          progress={progress}
+          isMobile={isMobile}
+          lensEntry={lensEntry}
+          reducedMotion={reducedMotion}
+        />
+      </Suspense>
+      <LensTransition lensEntry={lensEntry} />
       <ScopeView
         scopeProgress={scopeProgress}
+        lensEntry={lensEntry}
+        reducedMotion={reducedMotion}
         isMobile={isMobile}
         onOpenSection={openSectionPage}
         onNavigateSpecimen={navigateToSpecimen}
@@ -197,7 +201,6 @@ function App() {
           transitionMs={SECTION_PAGE_TRANSITION_MS}
         />
       </Suspense>
-      <LoadingScreen />
       <ScrollMeter
         activeIndex={currentPhaseIndex}
         meterPosition={meterPosition}
@@ -206,17 +209,6 @@ function App() {
         onSelectPhase={navigateToPhase}
       />
       <div className="fixed right-5 top-5 z-40 hidden gap-2 md:right-8 md:top-8 md:flex">
-        {scopeProgress < SCOPE_ACTIVATION_START ? (
-          <button
-            type="button"
-            onClick={() => setChamberTheme((theme) => (theme === 'warm' ? 'cold' : 'warm'))}
-            aria-label={`Switch to the ${chamberTheme === 'warm' ? 'cool' : 'warm'} scene`}
-            aria-pressed={chamberTheme === 'warm'}
-            className="rounded-full border border-white/60 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-800 shadow-[0_10px_30px_rgba(15,23,42,0.12)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:text-black"
-          >
-            Theme: {chamberTheme === 'warm' ? 'Warm' : 'Cool'}
-          </button>
-        ) : null}
         <button
           type="button"
           onClick={scrollToStart}
@@ -228,92 +220,96 @@ function App() {
 
       <main className={`relative z-20 ${ENABLE_DEV_CONTROLS ? 'pointer-events-none' : ''}`}>
         <section
-          className="relative overflow-hidden px-4 sm:px-6"
+          className="relative"
+          aria-labelledby="hero-title"
           style={{ height: `calc(var(--app-height) * ${HERO_SCROLL_HEIGHT / 100})` }}
         >
-          <div className="sticky top-0 w-full" style={{ minHeight: 'var(--app-height)' }}>
+          <div
+            className="sticky top-0 flex w-full flex-col"
+            style={{ minHeight: 'var(--app-height)', opacity: heroCardOpacity }}
+            inert={heroCardOpacity === 0}
+          >
             <div
-              className="mx-auto flex w-full max-w-6xl flex-col justify-center gap-4 py-4 sm:py-6 lg:py-10"
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-50 via-slate-50/90 to-transparent md:via-slate-50/60"
+              style={{ opacity: heroBackdropOpacity }}
+            />
+            <div
+              className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 pb-24 pt-5 sm:px-8 md:pt-8 lg:px-12"
               style={{ minHeight: 'var(--app-height)' }}
             >
-              <div
-                className="max-h-[calc(var(--app-height)-2rem)] max-w-md overflow-y-auto rounded-2xl border border-white/50 bg-white/55 p-4 shadow-md shadow-sky-100/35 transition-opacity duration-300 sm:max-w-xl sm:rounded-3xl sm:p-6 lg:p-8"
-                style={{ opacity: heroCardOpacity }}
-                >
-                  <p className="mb-2 text-xs font-medium uppercase tracking-[0.24em] text-lab-deep/70 sm:mb-3 sm:text-sm">
-                    João Vedor
-                  </p>
-                  <h1 className="text-2xl font-semibold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl xl:text-6xl">
-                    Biomedical NLP Developer.
-                  </h1>
-                  <p className="mt-2 max-w-lg text-sm leading-6 text-slate-700 sm:mt-3 sm:text-base sm:leading-7">
+              <nav
+                className="flex flex-wrap gap-x-5 gap-y-1 text-sm font-semibold text-emerald-950 md:pr-48"
+                aria-label="Portfolio sections"
+                style={{ opacity: heroDetailsOpacity }}
+                inert={heroDetailsOpacity === 0}
+              >
+                <button type="button" onClick={() => navigateToSection('about')} className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
+                  About
+                </button>
+                <button type="button" onClick={() => navigateToSection('projects')} className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
+                  Projects
+                </button>
+                <button type="button" onClick={() => navigateToSection('skills')} className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
+                  Skills
+                </button>
+                <button type="button" onClick={() => navigateToSection('contact')} className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
+                  Contact
+                </button>
+                {linkedInContact ? (
+                  <a
+                    href={linkedInContact.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+                  >
+                    LinkedIn <span aria-hidden="true">↗</span>
+                  </a>
+                ) : null}
+              </nav>
+
+              <div className="flex flex-1 flex-col justify-center py-10 sm:py-16">
+                <h1 id="hero-title" className="max-w-2xl text-6xl font-semibold leading-[0.95] tracking-[-0.06em] text-slate-950 sm:text-8xl lg:text-9xl">
+                  {aboutSection.name}
+                </h1>
+                <p className="mt-6 max-w-lg text-xl font-medium tracking-tight text-emerald-950 sm:text-2xl lg:text-3xl">
+                  Biomedical NLP Developer.
+                </p>
+                <div style={{ opacity: heroDetailsOpacity }} inert={heroDetailsOpacity === 0}>
+                  <p className="mt-4 max-w-sm text-base leading-7 text-slate-700 sm:text-lg">
                     I build reliable software for biomedical data.
                   </p>
 
-                  <div className="mt-4 flex flex-wrap gap-2.5 sm:mt-5" aria-label="Portfolio actions">
+                  <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3" aria-label="Portfolio actions">
                     <button
                       type="button"
                       onClick={() => navigateToSection('projects')}
-                      className="inline-flex min-h-11 items-center justify-center rounded-full bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+                      className="inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-emerald-800 px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-emerald-700 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-800"
                     >
-                      View projects
+                      View projects <span aria-hidden="true">↗</span>
                     </button>
                     {aboutSection?.cvHref ? (
                       <a
                         href={aboutSection.cvHref}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-300 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-emerald-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+                        className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-emerald-950 underline decoration-emerald-900/30 underline-offset-4 transition hover:decoration-emerald-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-800"
                       >
                         Download CV <span aria-hidden="true">↗</span>
                       </a>
                     ) : null}
                   </div>
-
-                  <nav className="mt-5 hidden flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-emerald-900 sm:flex" aria-label="Portfolio sections">
-                    <button type="button" onClick={() => navigateToSection('about')} className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
-                      About
-                    </button>
-                    <button type="button" onClick={() => navigateToSection('projects')} className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
-                      Projects
-                    </button>
-                    <button type="button" onClick={() => navigateToSection('skills')} className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
-                      Skills
-                    </button>
-                    <button type="button" onClick={() => navigateToSection('contact')} className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800">
-                      Contact
-                    </button>
-                    {linkedInContact ? (
-                      <a
-                        href={linkedInContact.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex min-h-11 items-center underline decoration-emerald-900/30 underline-offset-4 transition hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
-                      >
-                        LinkedIn <span aria-hidden="true">↗</span>
-                      </a>
-                    ) : null}
-                  </nav>
-
-                  <div className="mt-5 hidden items-center gap-3 border-t border-slate-900/10 pt-4 sm:flex">
-                  <span
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-800 text-lg text-white"
-                    aria-hidden="true"
-                  >
-                    ↓
-                  </span>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-900">
-                      How to explore
-                    </p>
-                    <p className="mt-1 text-sm leading-6 text-slate-600">
-                      {isMobile
-                        ? 'Swipe up to enter the lens, then use the arrows to browse specimens.'
-                        : 'Scroll, or use the arrow keys for a smoother experience.'}
-                    </p>
-                  </div>
                 </div>
               </div>
+
+              <p
+                className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.16em] text-emerald-950"
+                style={{ opacity: heroDetailsOpacity }}
+                aria-hidden={heroDetailsOpacity === 0}
+              >
+                <span aria-hidden="true">↓</span>
+                {isMobile ? 'Swipe up to explore' : 'Scroll or use arrow keys to explore'}
+              </p>
             </div>
           </div>
         </section>

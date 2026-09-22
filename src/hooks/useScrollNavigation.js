@@ -1,8 +1,8 @@
-import { useCallback } from 'react';
-import { HERO_SCROLL_HEIGHT } from '../config/scopeTiming.js';
+import { useCallback, useEffect } from 'react';
+import { HERO_SCROLL_HEIGHT, SCOPE_SCROLL_IDLE_MS, SCOPE_SNAP_DURATION_MS } from '../config/scopeTiming.js';
 import { getMeasuredViewportHeight } from '../utils/dom.js';
 import { clamp, easeInOutCubic } from '../utils/progress.js';
-import { getSpecimenScopeProgress } from '../utils/scopeProgress.js';
+import { getScopeSnapIndex, getSpecimenScopeProgress } from '../utils/scopeProgress.js';
 
 export function useScrollNavigation({
   animateRef,
@@ -12,6 +12,17 @@ export function useScrollNavigation({
   scrollContainerRef,
   sections,
 }) {
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    const cancelScroll = () => {
+      window.cancelAnimationFrame(animateRef.current);
+      animateRef.current = 0;
+    };
+    const events = ['wheel', 'touchstart', 'pointerdown'];
+    events.forEach((event) => container?.addEventListener(event, cancelScroll, { passive: true }));
+    return () => events.forEach((event) => container?.removeEventListener(event, cancelScroll));
+  }, [animateRef, scrollContainerRef]);
+
   const animateScrollTo = useCallback((targetScrollY, durationOverride) => {
     const container = scrollContainerRef.current;
 
@@ -21,6 +32,12 @@ export function useScrollNavigation({
 
     if (animateRef.current) {
       window.cancelAnimationFrame(animateRef.current);
+      animateRef.current = 0;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      container.scrollTop = targetScrollY;
+      return;
     }
 
     const startScrollY = container.scrollTop;
@@ -44,7 +61,7 @@ export function useScrollNavigation({
     animateRef.current = window.requestAnimationFrame(tick);
   }, [animateRef, scrollContainerRef]);
 
-  const navigateToSpecimen = useCallback((targetIndex) => {
+  const navigateToSpecimen = useCallback((targetIndex, durationOverride) => {
     if (targetIndex < 0 || targetIndex >= sections.length) {
       return;
     }
@@ -54,8 +71,29 @@ export function useScrollNavigation({
     const viewportHeight = getMeasuredViewportHeight(scrollContainerRef.current);
     const targetScrollY = (targetHeroVh / 100) * viewportHeight;
 
-    animateScrollTo(targetScrollY);
+    animateScrollTo(targetScrollY, durationOverride);
   }, [animateScrollTo, scopeEndVh, scopeStartVh, scrollContainerRef, sections]);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    let settleTimer;
+    const settleScope = () => {
+      if (animateRef.current) return;
+      const vh = container.scrollTop / getMeasuredViewportHeight(container) * 100;
+      const progress = (vh - scopeStartVh) / (scopeEndVh - scopeStartVh);
+      const index = getScopeSnapIndex(progress, sections.length);
+      if (index !== null) navigateToSpecimen(index, SCOPE_SNAP_DURATION_MS);
+    };
+    const onScroll = () => {
+      window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(settleScope, SCOPE_SCROLL_IDLE_MS);
+    };
+    container?.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.clearTimeout(settleTimer);
+      container?.removeEventListener('scroll', onScroll);
+    };
+  }, [animateRef, navigateToSpecimen, scopeEndVh, scopeStartVh, scrollContainerRef, sections.length]);
 
   const scrollToStart = useCallback(() => {
     animateScrollTo(0, 900);

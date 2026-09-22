@@ -7,26 +7,36 @@ import MicroscopeModel from './MicroscopeModel';
 import ScrollCamera from './ScrollCamera';
 import Lights from './Lights';
 import CameraTuner from './CameraTuner';
-import MicroscopeChamber from './MicroscopeChamber';
-import WaterfallPlane from './WaterfallPlane';
+import LabBench from './LabBench';
+import { startSceneThemeCycle } from '../../utils/sceneTheme.js';
 import { CAMERA_PATH } from '../../config/cameraPath';
-import {
-  SCOPE_ACTIVATION_RANGE,
-  SCOPE_ACTIVATION_START,
-} from '../../config/scopeTiming.js';
+import { SCENE_REVEAL_MS } from '../../config/scopeTiming.js';
 
 const ENABLE_DEV_CONTROLS = import.meta.env.VITE_ENABLE_ORBIT === 'true';
 
-function Scene({ progress, isMobile, scopeProgress = 0, chamberTheme = 'warm' }) {
+function SceneReady({ onReady }) {
+  useEffect(() => {
+    // This mounts only after every suspended scene asset is ready.
+    const frame = requestAnimationFrame(() => onReady(true));
+    return () => cancelAnimationFrame(frame);
+  }, [onReady]);
+  return null;
+}
+
+function Scene({ progress, isMobile, lensEntry, reducedMotion }) {
   const [hasWebGL, setHasWebGL] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const [isPageVisible, setIsPageVisible] = useState(true);
+  const [isReady, setIsReady] = useState(false);
+  const [chamberTheme, setChamberTheme] = useState('cold');
   const enableShadows = !isMobile;
   const devCameraPath = isMobile ? CAMERA_PATH.mobile : CAMERA_PATH.desktop;
-  const scopeFade = Math.min(
-    1,
-    Math.max(0, (scopeProgress - SCOPE_ACTIVATION_START) / SCOPE_ACTIVATION_RANGE),
-  );
+  const isSceneActive = hasWebGL && (ENABLE_DEV_CONTROLS || lensEntry.field < 1);
+
+  useEffect(() => {
+    if (!isSceneActive) return;
+    return startSceneThemeCycle(() => {
+      setChamberTheme((theme) => (theme === 'warm' ? 'cold' : 'warm'));
+    });
+  }, [isSceneActive]);
 
   useEffect(() => {
     const canvas = document.createElement('canvas');
@@ -36,30 +46,18 @@ function Scene({ progress, isMobile, scopeProgress = 0, chamberTheme = 'warm' })
     gl?.getExtension('WEBGL_lose_context')?.loseContext();
   }, []);
 
-  useEffect(() => {
-    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const updateMotion = () => setReducedMotion(motion.matches);
-    const updateVisibility = () => setIsPageVisible(!document.hidden);
-    updateMotion();
-    updateVisibility();
-    motion.addEventListener('change', updateMotion);
-    document.addEventListener('visibilitychange', updateVisibility);
-    return () => {
-      motion.removeEventListener('change', updateMotion);
-      document.removeEventListener('visibilitychange', updateVisibility);
-    };
-  }, []);
-
   if (!hasWebGL) {
-    return <div className="fixed inset-0 z-0 bg-[radial-gradient(circle_at_top,_#d8f0ff,_#eef6fc_32%,_#ffffff_72%)]" />;
+    return <div className="fixed inset-0 z-0 bg-white" />;
   }
 
   return (
     <div
-      className={`fixed inset-0 z-0 transition-opacity duration-300 ${ENABLE_DEV_CONTROLS ? 'pointer-events-auto' : 'pointer-events-none'}`}
+      key="scene"
+      className={`fixed inset-0 z-0 transition-opacity ease-out ${ENABLE_DEV_CONTROLS ? 'pointer-events-auto' : 'pointer-events-none'}`}
       style={{
-        opacity: 1 - scopeFade,
-        visibility: !ENABLE_DEV_CONTROLS && scopeFade >= 1 ? 'hidden' : 'visible',
+        visibility: isSceneActive ? 'visible' : 'hidden',
+        opacity: isReady ? 1 : 0,
+        transitionDuration: `${reducedMotion ? 0 : SCENE_REVEAL_MS}ms`,
       }}
     >
       <Canvas
@@ -75,22 +73,17 @@ function Scene({ progress, isMobile, scopeProgress = 0, chamberTheme = 'warm' })
           powerPreference: 'default',
         }}
       >
-        <color attach="background" args={['#b4c7c8']} />
+        <color attach="background" args={['#ffffff']} />
 
         <Suspense fallback={null}>
           <Environment />
           <Lights enableShadows={enableShadows} themeMode={chamberTheme} />
-          {!ENABLE_DEV_CONTROLS ? <ScrollCamera progress={progress} isMobile={isMobile} /> : null}
-          <MicroscopeChamber themeMode={chamberTheme} />
-          <WaterfallPlane
-            isActive={scopeFade < 1 && isPageVisible}
-            themeMode={chamberTheme}
-            reducedMotion={reducedMotion}
-            isMobile={isMobile}
-          />
+          {!ENABLE_DEV_CONTROLS ? <ScrollCamera progress={progress} isMobile={isMobile} entryCamera={lensEntry.camera} reducedMotion={reducedMotion} /> : null}
+          <LabBench themeMode={chamberTheme} />
           <MicroscopeModel />
           {/* Geometry and light positions are static; only the camera moves. */}
           {enableShadows ? <BakeShadows /> : null}
+          <SceneReady onReady={setIsReady} />
         </Suspense>
 
         {ENABLE_DEV_CONTROLS ? (

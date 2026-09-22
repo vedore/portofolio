@@ -1,73 +1,16 @@
-import { memo, useRef } from 'react';
-import {
-  NEXT_FADE_DELAY,
-  SCOPE_ACTIVATION_RANGE,
-  SCOPE_ACTIVATION_START,
-  SCOPE_CONTENT_RANGE,
-  SCOPE_CONTENT_START,
-  SECTION_HOLD_END,
-  SECTION_HOLD_START,
-} from '../../config/scopeTiming.js';
+import { memo } from 'react';
 import sections from '../../data/ScopeViewSections.data.js';
-import { clamp, smoothstep } from '../../utils/progress.js';
+import { getScopeState, quantizeScopeProgress } from '../../utils/scopeProgress.js';
 
-const STEP_COUNT = Math.max(sections.length - 1, 1);
-
-const getScopeState = (scopeProgress, scrollDirection = 1) => {
-  const activation = clamp((scopeProgress - SCOPE_ACTIVATION_START) / SCOPE_ACTIVATION_RANGE);
-  const contentProgress = smoothstep(
-    clamp((scopeProgress - SCOPE_CONTENT_START) / SCOPE_CONTENT_RANGE),
-  );
-  const rawPosition = contentProgress * STEP_COUNT;
-  const baseIndex = Math.min(Math.floor(rawPosition), sections.length - 1);
-  const baseSectionProgress =
-    baseIndex >= sections.length - 1 ? 0 : rawPosition - baseIndex;
-  const transitionRange = SECTION_HOLD_END - SECTION_HOLD_START;
-
-  let currentIndex = baseIndex;
-  let nextIndex = Math.min(baseIndex + 1, sections.length - 1);
-  let shiftProgress = 0;
-
-  if (baseSectionProgress > SECTION_HOLD_START && baseSectionProgress < SECTION_HOLD_END) {
-    const forwardShiftProgress = smoothstep(
-      (baseSectionProgress - SECTION_HOLD_START) / transitionRange,
-    );
-
-    if (scrollDirection < 0) {
-      currentIndex = Math.min(baseIndex + 1, sections.length - 1);
-      nextIndex = baseIndex;
-      shiftProgress = 1 - forwardShiftProgress;
-    } else {
-      shiftProgress = forwardShiftProgress;
-    }
-  } else if (baseSectionProgress >= SECTION_HOLD_END) {
-    currentIndex = Math.min(baseIndex + 1, sections.length - 1);
-    nextIndex = Math.min(currentIndex + 1, sections.length - 1);
-  }
-
-  const nextOpacity = smoothstep(
-    clamp((shiftProgress - NEXT_FADE_DELAY) / (1 - NEXT_FADE_DELAY)),
-  );
-
-  return {
-    activation,
-    contentProgress,
-    currentIndex,
-    nextIndex,
-    nextOpacity,
-    shiftProgress,
-  };
-};
-
-const getCardStyle = ({ direction, isEntering, nextOpacity, shiftProgress, isTransitioning }) => {
+const getCardStyle = ({ isEntering, shiftProgress, isTransitioning }) => {
   const progress = isEntering ? 1 - shiftProgress : -shiftProgress;
   const distance = isEntering ? 38 : 34;
-  const opacity = isEntering ? nextOpacity : 1 - nextOpacity * 0.82;
+  const opacity = isEntering ? shiftProgress : 1 - shiftProgress;
   const scale = isEntering ? 0.965 + shiftProgress * 0.035 : 1 - shiftProgress * 0.035;
 
   return {
     opacity,
-    transform: `translate3d(${direction * progress * distance}%, 0, 0) scale(${scale})`,
+    transform: `translate3d(${progress * distance}%, 0, 0) scale(${scale})`,
     willChange: isTransitioning ? 'transform, opacity' : undefined,
   };
 };
@@ -76,6 +19,7 @@ const ScopeNavButton = memo(function ScopeNavButton({
   direction,
   inset,
   disabled,
+  opacity,
   onClick,
 }) {
   const isPrevious = direction < 0;
@@ -85,8 +29,8 @@ const ScopeNavButton = memo(function ScopeNavButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="pointer-events-auto absolute top-[90%] z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/15 text-2xl font-light text-emerald-500 transition-colors duration-200 hover:bg-black/30 hover:text-emerald-400 disabled:cursor-not-allowed disabled:opacity-20 md:top-1/2 md:h-12 md:w-12 md:text-4xl"
-      style={isPrevious ? { left: inset } : { right: inset }}
+      className="pointer-events-auto absolute top-[90%] z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/15 text-2xl font-light text-emerald-500 transition-colors duration-200 hover:bg-black/30 hover:text-emerald-400 disabled:cursor-not-allowed md:top-1/2 md:h-12 md:w-12 md:text-4xl"
+      style={{ ...(isPrevious ? { left: inset } : { right: inset }), opacity }}
       aria-label={`${isPrevious ? 'Previous' : 'Next'} specimen`}
     >
       {isPrevious ? '←' : '→'}
@@ -97,7 +41,6 @@ const ScopeNavButton = memo(function ScopeNavButton({
 const ScopeCard = memo(function ScopeCard({
   section,
   isInteractive,
-  tone = 'current',
   style,
   isMobile,
   onOpenSection,
@@ -122,13 +65,11 @@ const ScopeCard = memo(function ScopeCard({
           items-center gap-3 rounded-full border border-black/10 
           bg-emerald-800 px-5 py-3 text-3xl font-semibold
           tracking-[0.04em] text-slate-200 shadow-[0_6px_18px_rgba(15,23,42,0.07)] 
-          transition-colors duration-200 hover:border-black/25 hover:bg-emerald-600 disabled:cursor-default
+          transition-colors duration-200 hover:border-black/25 hover:bg-emerald-600 disabled:pointer-events-none disabled:cursor-default
           md:text-5xl">
           <span className="truncate">{section.title}</span>
           <span
-            className={`text-sm font-semibold uppercase tracking-[0.18em] md:text-base ${
-              tone === 'current' ? 'text-emerald-400' : 'text-slate-500'
-            }`}
+            className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-400 md:text-base"
           >
             Open
           </span>
@@ -144,53 +85,43 @@ const ScopeCard = memo(function ScopeCard({
 
 function ScopeView({
   scopeProgress,
+  lensEntry,
+  reducedMotion,
   isMobile,
   onOpenSection,
   onNavigateSpecimen,
 }) {
-  const previousScopeProgressRef = useRef(scopeProgress);
-  const scrollDirectionRef = useRef(1);
-  const progressDelta = scopeProgress - previousScopeProgressRef.current;
-
-  if (Math.abs(progressDelta) > 0.001) {
-    scrollDirectionRef.current = progressDelta < 0 ? -1 : 1;
-    previousScopeProgressRef.current = scopeProgress;
-  }
-
   const {
-    activation,
-    contentProgress,
     currentIndex,
     nextIndex,
-    nextOpacity,
     shiftProgress,
-  } = getScopeState(scopeProgress, scrollDirectionRef.current);
+  } = getScopeState(quantizeScopeProgress(scopeProgress), sections.length);
 
-  const isLensInteractive = activation >= 0.98;
+  const { field, content, controls, isInteractive: isLensInteractive } = lensEntry;
   const currentSection = sections[currentIndex];
   const nextSection = sections[nextIndex];
-  const direction = nextIndex >= currentIndex ? 1 : -1;
-  const canGoPrevious = currentIndex > 0;
-  const canGoNext = currentIndex < sections.length - 1;
-  const isShifting = currentIndex !== nextIndex && shiftProgress > 0.001;
-  const showNextCard = currentIndex !== nextIndex && nextOpacity > 0.001;
+  const activeIndex = shiftProgress < 0.5 ? currentIndex : nextIndex;
+  const canGoPrevious = activeIndex > 0;
+  const canGoNext = activeIndex < sections.length - 1;
+  const isShifting = shiftProgress > 0 && shiftProgress < 1;
+  const showNextCard = currentIndex !== nextIndex && shiftProgress > 0;
 
   const lensSize = isMobile ? 'min(86vw, 28rem)' : 'min(56vw, 31rem)';
   const arrowInset = isMobile ? 'clamp(0.55rem, 2vw, 0.9rem)' : 'clamp(0.85rem, 1.8vw, 1.35rem)';
 
-  const cardStyleProps = { direction, nextOpacity, shiftProgress, isTransitioning: isShifting };
-  const dotPosition = contentProgress * STEP_COUNT;
+  const cardStyleProps = { shiftProgress, isTransitioning: isShifting };
 
-  if (activation <= 0) {
+  if (field <= 0) {
     return null;
   }
 
   return (
     <div
       className="pointer-events-none fixed inset-0 z-30 flex items-center justify-center bg-black"
+      inert={!isLensInteractive}
       style={{
-        opacity: activation,
-        willChange: activation < 1 ? 'opacity' : undefined,
+        opacity: field,
+        willChange: field < 1 ? 'opacity' : undefined,
       }}
     >
       <div
@@ -198,33 +129,38 @@ function ScopeView({
         style={{
           width: lensSize,
           height: lensSize,
-          transform: `translate3d(0, 0, 0) scale(${0.985 + activation * 0.025})`,
-          willChange: activation < 1 ? 'transform' : undefined,
+          transform: reducedMotion ? undefined : `scale(${0.92 + field * 0.08})`,
+          willChange: field < 1 && !reducedMotion ? 'transform' : undefined,
         }}
       >
         <ScopeNavButton
           direction={-1}
           inset={arrowInset}
           disabled={!isLensInteractive || !canGoPrevious}
-          onClick={() => onNavigateSpecimen?.(currentIndex - 1)}
+          opacity={controls * (canGoPrevious ? 1 : 0.2)}
+          onClick={() => onNavigateSpecimen?.(activeIndex - 1)}
         />
 
         <ScopeNavButton
           direction={1}
           inset={arrowInset}
           disabled={!isLensInteractive || !canGoNext}
-          onClick={() => onNavigateSpecimen?.(currentIndex + 1)}
+          opacity={controls * (canGoNext ? 1 : 0.2)}
+          onClick={() => onNavigateSpecimen?.(activeIndex + 1)}
         />
 
-        <div className="relative h-full w-full overflow-hidden rounded-full border border-white/10 bg-white [contain:layout_paint_style]">
+        <div
+          className="relative h-full w-full overflow-hidden rounded-full border border-white/10 bg-white [contain:layout_paint_style]"
+          style={{ filter: field < 1 && !reducedMotion ? `blur(${(1 - field) * 6}px)` : undefined }}
+        >
           <div className="pointer-events-none absolute inset-x-[12%] top-[13%] h-[1px] bg-black/8" />
           <div className="pointer-events-none absolute inset-x-[12%] bottom-[13%] h-[1px] bg-black/8" />
 
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden" style={{ opacity: content }}>
             <ScopeCard
               key={currentSection.id}
               section={currentSection}
-              isInteractive={isLensInteractive}
+              isInteractive={isLensInteractive && activeIndex === currentIndex}
               style={getCardStyle(cardStyleProps)}
               isMobile={isMobile}
               onOpenSection={onOpenSection}
@@ -234,8 +170,7 @@ function ScopeView({
               <ScopeCard
                 key={nextSection.id}
                 section={nextSection}
-                isInteractive={false}
-                tone="next"
+                isInteractive={isLensInteractive && activeIndex === nextIndex}
                 style={getCardStyle({ ...cardStyleProps, isEntering: true })}
                 isMobile={isMobile}
                 onOpenSection={onOpenSection}
@@ -246,10 +181,9 @@ function ScopeView({
           <div className="pointer-events-none absolute inset-0 rounded-full border border-black/10" />
         </div>
 
-        <div className="pointer-events-none absolute -bottom-8 left-1/2 flex -translate-x-1/2 gap-2">
+        <div className="pointer-events-none absolute -bottom-8 left-1/2 flex -translate-x-1/2 gap-2" style={{ opacity: controls }}>
           {sections.map((section, index) => {
-            const distance = Math.abs(dotPosition - index);
-            const isActive = distance < 0.5;
+            const isActive = activeIndex === index;
 
             return (
               <span
@@ -271,6 +205,8 @@ function ScopeView({
 const areScopePropsEqual = (previousProps, nextProps) => {
   if (
     previousProps.isMobile !== nextProps.isMobile ||
+    previousProps.reducedMotion !== nextProps.reducedMotion ||
+    previousProps.lensEntry.progress !== nextProps.lensEntry.progress ||
     previousProps.onOpenSection !== nextProps.onOpenSection ||
     previousProps.onNavigateSpecimen !== nextProps.onNavigateSpecimen
   ) {
@@ -278,8 +214,8 @@ const areScopePropsEqual = (previousProps, nextProps) => {
   }
 
   return (
-    Math.round(previousProps.scopeProgress * 250) ===
-    Math.round(nextProps.scopeProgress * 250)
+    quantizeScopeProgress(previousProps.scopeProgress) ===
+    quantizeScopeProgress(nextProps.scopeProgress)
   );
 };
 

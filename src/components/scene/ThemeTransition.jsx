@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import { SCENE_THEME_TRANSITION_SPEED } from '../../config/scopeTiming.js';
 
 const TRANSITION_SPEED = 4.5;
 const COLOR_EPSILON = 0.00001;
@@ -85,7 +86,8 @@ export function ThemedLight({
       return;
     }
 
-    const alpha = 1 - Math.exp(-delta * TRANSITION_SPEED);
+    // Demand rendering can leave a long gap between frames while the lights rest.
+    const alpha = 1 - Math.exp(-Math.min(delta, 0.1) * SCENE_THEME_TRANSITION_SPEED);
     light.color.lerp(targetColor, alpha);
     light.intensity = THREE.MathUtils.lerp(light.intensity, targetIntensity, alpha);
     invalidate();

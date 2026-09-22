@@ -6,14 +6,16 @@ import {
   HERO_ANIMATION_START,
   HERO_CARD_FADE_RANGE,
   HERO_CARD_FADE_START,
+  HERO_DETAILS_FADE_END,
+  HERO_BACKDROP_MID_OPACITY,
   HERO_SCOPE_END,
   HERO_SCOPE_START,
   HERO_SCROLL_HEIGHT,
 } from '../config/scopeTiming.js';
-import { clamp } from '../utils/progress.js';
-import { getSpecimenScopeProgress } from '../utils/scopeProgress.js';
+import { clamp, smoothstep } from '../utils/progress.js';
+import { getLensEntryState, getSpecimenScopeProgress } from '../utils/scopeProgress.js';
 
-export function useScopeProgress({ heroProgress, sections }) {
+export function useScopeProgress({ heroProgress, sections, reducedMotion }) {
   const heroScrollRangeVh = HERO_SCROLL_HEIGHT - 100;
   const scopeStartVh = clamp(HERO_SCOPE_START, 0, heroScrollRangeVh);
   const scopeEndVh = clamp(HERO_SCOPE_END, scopeStartVh, heroScrollRangeVh);
@@ -21,7 +23,11 @@ export function useScopeProgress({ heroProgress, sections }) {
   const scopeProgress = clamp(
     (currentHeroVh - scopeStartVh) / Math.max(scopeEndVh - scopeStartVh, 0.001),
   );
-  const heroCardOpacity = 1 - clamp((scopeProgress - HERO_CARD_FADE_START) / HERO_CARD_FADE_RANGE);
+  const cameraProgress = clamp((currentHeroVh - HERO_ANIMATION_START) / (HERO_ANIMATION_END - HERO_ANIMATION_START));
+  const heroCardOpacity = 1 - smoothstep(clamp((cameraProgress - HERO_CARD_FADE_START) / HERO_CARD_FADE_RANGE));
+  const heroDetailsOpacity = 1 - smoothstep(clamp(cameraProgress / HERO_DETAILS_FADE_END));
+  const heroBackdropOpacity = HERO_BACKDROP_MID_OPACITY + (1 - HERO_BACKDROP_MID_OPACITY) * heroDetailsOpacity;
+  const lensEntry = getLensEntryState(heroProgress, reducedMotion);
 
   const getSpecimenHeroProgress = useCallback((targetIndex) => {
     const targetScopeProgress = getSpecimenScopeProgress(targetIndex, sections.length);
@@ -72,6 +78,9 @@ export function useScopeProgress({ heroProgress, sections }) {
   return {
     currentPhaseIndex,
     heroCardOpacity,
+    heroDetailsOpacity,
+    heroBackdropOpacity,
+    lensEntry,
     heroScrollRangeVh,
     meterPosition,
     phaseTargets,

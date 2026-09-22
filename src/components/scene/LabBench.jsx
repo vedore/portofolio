@@ -32,7 +32,7 @@ function LabBench({ themeMode }) {
         args={[LAB.width, LAB.benchThickness, LAB.depth]}
         radius={0.06} smoothness={2} bevelSegments={2} castShadow receiveShadow
       >
-        <ThemedStandardMaterial themeMode={themeMode} warmColor="#d9cbb2" coldColor="#cad8d8" roughness={0.38} metalness={0.12} />
+        <ThemedStandardMaterial themeMode={themeMode} warmColor="#c7d2b5" coldColor="#c7d2b5" roughness={0.38} metalness={0.12} />
       </RoundedBox>
       <RoundedBox
         position={[0, underside - 0.16, 0]}
@@ -90,6 +90,79 @@ function LabBench({ themeMode }) {
           </group>
         ))}
       </group>
+
+      {/* Fixed, scattered props keep the microscope and its camera path clear. */}
+      {[
+        { x: -3, z: 1.3, lift: 0, angle: -0.12, color: '#e8ddc8' },
+        { x: 3.7, z: 1.3, lift: 0, angle: -0.32, color: '#70858b' },
+        { x: -0.6, z: -2.45, lift: 0, angle: 0.24, color: '#37403b' },
+      ].map(({ x, z, lift, angle, color }, index) => (
+        <group key={`book-${index}`} position={[x, LAB.benchTop + lift, z]} rotation={[0, angle, 0]}>
+          <mesh position={[0.025, 0.14, 0]} castShadow receiveShadow>
+            <boxGeometry args={[1.2, 0.22, 1.55]} />
+            <meshStandardMaterial color="#eee4ce" roughness={0.95} />
+          </mesh>
+          {[0.015, 0.265].map((y) => (
+            <mesh key={y} position={[0, y, 0]} castShadow receiveShadow>
+              <boxGeometry args={[1.32, 0.03, 1.65]} />
+              <meshStandardMaterial color={color} roughness={0.8} />
+            </mesh>
+          ))}
+          <mesh position={[-0.645, 0.14, 0]} castShadow receiveShadow>
+            <boxGeometry args={[0.03, 0.28, 1.65]} />
+            <meshStandardMaterial color={color} roughness={0.8} />
+          </mesh>
+        </group>
+      ))}
+
+      {[
+        [0.1, 2.2, 0.22],
+        [0.5, 2.15, -0.14],
+        [4.5, -1.2, 0.4],
+      ].map(([x, z, angle], index) => (
+        <group key={`paper-${index}`} position={[x, LAB.benchTop + 0.008 + index * 0.014, z]} rotation={[0, angle, 0]}>
+          <mesh receiveShadow>
+            <boxGeometry args={[1.15, 0.012, 1.5]} />
+            <meshStandardMaterial color="#f4eedc" roughness={1} />
+          </mesh>
+          {[-0.42, -0.23, -0.04, 0.15].map((line, lineIndex) => (
+            <mesh key={line} position={[-0.05, 0.007, line]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[0.8 - lineIndex * 0.1, 0.018]} />
+              <meshStandardMaterial color="#657477" roughness={1} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+
+      {[
+        [2.1, 1.3, 0.65, '#dfae39'],
+        [2.15, 1.8, -0.3, '#dfae39'],
+        [4.6, -0.15, -0.7, '#dfae39'],
+        [-3.8, -2.15, 0.2, '#dfae39'],
+      ].map(([x, z, angle, color], index) => (
+        <group key={`pencil-${index}`} position={[x, LAB.benchTop + 0.06, z]} rotation={[0, angle, Math.PI / 2]}>
+          <mesh castShadow receiveShadow>
+            <cylinderGeometry args={[0.055, 0.055, 1.15, 6]} />
+            <meshStandardMaterial color={color} roughness={0.65} />
+          </mesh>
+          <mesh position={[0, 0.675, 0]} castShadow>
+            <cylinderGeometry args={[0.012, 0.055, 0.2, 6]} />
+            <meshStandardMaterial color="#d7b68b" roughness={0.9} />
+          </mesh>
+          <mesh position={[0, 0.8, 0]} castShadow>
+            <coneGeometry args={[0.012, 0.05, 6]} />
+            <meshStandardMaterial color="#25272b" roughness={0.9} />
+          </mesh>
+          <mesh position={[0, -0.62, 0]} castShadow>
+            <cylinderGeometry args={[0.058, 0.058, 0.09, 8]} />
+            <meshStandardMaterial color="#b8bec0" metalness={0.75} roughness={0.3} />
+          </mesh>
+          <mesh position={[0, -0.72, 0]} castShadow>
+            <cylinderGeometry args={[0.055, 0.055, 0.11, 8]} />
+            <meshStandardMaterial color="#cd827c" roughness={0.95} />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }

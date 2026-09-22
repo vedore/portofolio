@@ -18,6 +18,6 @@ export const LAB = {
   benchTop: -1.45,
   benchThickness: 0.18,
   floor: -4.9,
-  width: 8.4,
-  depth: 4.6,
+  width: 12.6,
+  depth: 6.9,
 };
