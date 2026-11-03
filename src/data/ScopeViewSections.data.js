@@ -1,3 +1,8 @@
+export const announcement = {
+  text: 'XMR4EL just got pushed with new things!',
+  sectionId: 'projects',
+};
+
 export const sections = [
   {
     id: 'about',
@@ -116,12 +121,18 @@ export const sections = [
       {
         title: 'Bioinformatics Studies - XMR4EL',
         type: 'Academic / Research Work',
-        status: 'Done',
+        status: 'Ongoing',
         year: '2026',
         summary:
           'Master’s thesis work on semantic indexing, descriptor partitioning, and classification for biomedical entity linking.',
         tags: ['Biomedical NLP', 'Entity Linking', 'Ontologies', 'Research'],
         links: [
+          {
+            label: 'Website',
+            description: 'Project Website',
+            href: 'https://vedore.github.io/xmr4el-web/',
+            kind: 'website',
+          },
           {
             label: 'Thesis Document',
             description: 'Research PDF',

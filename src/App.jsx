@@ -3,7 +3,7 @@ import LensTransition from './components/ui/LensTransition';
 import ScopeView from './components/ui/ScopeView';
 import ScrollMeter from './components/ui/ScrollMeter';
 import { Analytics } from '@vercel/analytics/react';
-import sections from './data/ScopeViewSections.data.js';
+import sections, { announcement } from './data/ScopeViewSections.data.js';
 import {
   HERO_ANIMATION_END,
   HERO_ANIMATION_START,
@@ -269,6 +269,19 @@ function App() {
               </nav>
 
               <div className="flex flex-1 flex-col justify-center py-10 sm:py-16">
+                {announcement ? (
+                  <div className="mb-6" style={{ opacity: heroDetailsOpacity }} inert={heroDetailsOpacity === 0}>
+                    <button
+                      type="button"
+                      onClick={() => navigateToSection(announcement.sectionId)}
+                      className="inline-flex min-h-11 items-center gap-2 rounded-full bg-emerald-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-800"
+                    >
+                      <span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-300" />
+                      {announcement.text}
+                      <span aria-hidden="true">↗</span>
+                    </button>
+                  </div>
+                ) : null}
                 <h1 id="hero-title" className="max-w-2xl text-6xl font-semibold leading-[0.95] tracking-[-0.06em] text-slate-950 sm:text-8xl lg:text-9xl">
                   {aboutSection.name}
                 </h1>
